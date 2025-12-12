@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standalone Web IDE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .ide-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #323233;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border-bottom: 1px solid #1e1e1e;
+            gap: 16px;
+        }
+
+        .top-bar-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #cccccc;
+        }
+
+        .top-bar-btn {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .top-bar-btn:hover {
+            background: #1177bb;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: #252526;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #1e1e1e;
+        }
+
+        .sidebar-header {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #cccccc;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .sidebar-action {
+            cursor: pointer;
+            color: #858585;
+            transition: color 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar-action:hover {
+            color: #d4d4d4;
+        }
+
+        .file-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+
+        .file-tree-item {
+            padding: 6px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #cccccc;
+            transition: background 0.15s;
+            user-select: none;
+        }
+
+        .file-tree-item:hover {
+            background: #2a2d2e;
+        }
+
+        .file-tree-item.selected {
+            background: #37373d;
+        }
+
+        .file-tree-item.folder {
+            font-weight: 500;
+        }
+
+        /* Editor Area */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tabs-container {
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            height: 35px;
+            overflow-x: auto;
+            border-bottom: 1px solid #1e1e1e;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            height: 35px;
+            background: #2d2d2d;
+            border-right: 1px solid #1e1e1e;
+            cursor: pointer;
+            font-size: 13px;
+            color: #969696;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #323233;
+            color: #d4d4d4;
+        }
+
+        .tab.active {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-top: 1px solid #3794ff;
+        }
+
+        .tab-close {
+            opacity: 0.7;
+            transition: opacity 0.15s;
+            margin-left: 4px;
+        }
+
+        .tab:hover .tab-close {
+            opacity: 1;
+        }
+
+        .tab-close:hover {
+            color: #e06c75;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            background: #1e1e1e;
+        }
+
+        .editor-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            flex-direction: column;
+        }
+
+        .editor-wrapper.active {
+            display: flex;
+        }
+
+        .editor-toolbar {
+            background: #1e1e1e;
+            padding: 8px 12px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #2d2d2d;
+        }
+
+        .editor-btn {
+            background: #16825d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 14px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .editor-btn:hover {
+            background: #1a9870;
+        }
+
+        .language-select {
+            background: #3c3c3c;
+            color: #cccccc;
+            border: 1px solid #454545;
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        #codeEditor {
+            flex: 1;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            padding: 16px;
+            border: none;
+            outline: none;
+            resize: none;
+            line-height: 1.6;
+            tab-size: 4;
+        }
+
+        .editor-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6a737d;
+            font-size: 14px;
+        }
+
+        .editor-placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Bottom Panel */
+        .bottom-panel {
+            background: #1e1e1e;
+            border-top: 1px solid #2d2d2d;
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+            min-height: 100px;
+            max-height: 500px;
+            resize: vertical;
+            overflow: hidden;
+        }
+
+        .bottom-panel.collapsed {
+            height: 35px;
+        }
+
+        .bottom-panel-header {
+            background: #252526;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 16px;
+            border-bottom: 1px solid #1e1e1e;
+        }
+
+        .panel-tab {
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #969696;
+            transition: color 0.15s;
+        }
+
+        .panel-tab:hover {
+            color: #d4d4d4;
+        }
+
+        .panel-tab.active {
+            color: #d4d4d4;
+            border-bottom: 1px solid #3794ff;
+        }
+
+        .panel-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        .panel-action {
+            cursor: pointer;
+            color: #858585;
+            transition: color 0.2s;
+        }
+
+        .panel-action:hover {
+            color: #d4d4d4;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .panel-content.active {
+            display: block;
+        }
+
+        .output-panel {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            padding: 12px;
+            height: 100%;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .output-success {
+            color: #4ec9b0;
+        }
+
+        .output-error {
+            color: #f48771;
+        }
+
+        .terminal {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            padding: 12px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-bottom: 4px;
+        }
+
+        .terminal-prompt {
+            color: #4ec9b0;
+            font-weight: 500;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #2d2d2d;
+            border: 1px solid #454545;
+            border-radius: 6px;
+            padding: 24px;
+            min-width: 400px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #cccccc;
+        }
+
+        .modal-input {
+            width: 100%;
+            background: #1e1e1e;
+            border: 1px solid #3c3c3c;
+            border-radius: 3px;
+            padding: 8px 12px;
+            color: #d4d4d4;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .modal-input:focus {
+            border-color: #3794ff;
+        }
+
+        .modal-select {
+            width: 100%;
+            background: #1e1e1e;
+            border: 1px solid #3c3c3c;
+            border-radius: 3px;
+            padding: 8px 12px;
+            color: #d4d4d4;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+
+        .modal-btn-primary {
+            background: #3794ff;
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background: #2d82e5;
+        }
+
+        .modal-btn-secondary {
+            background: #3c3c3c;
+            color: #cccccc;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #4a4a4a;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: #3c3c3c;
+            border: 1px solid #454545;
+            border-radius: 4px;
+            padding: 4px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            z-index: 1000;
+            display: none;
+            min-width: 180px;
+        }
+
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #cccccc;
+            transition: background 0.15s;
+        }
+
+        .context-menu-item:hover {
+            background: #2a2d2e;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4e4e4e;
+        }
+
+        /* File Icons */
+        .file-icon {
+            display: inline-block;
+            width: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="ide-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-title">📝 Standalone IDE</div>
+            <button class="top-bar-btn" onclick="downloadFile()">💾 Download File</button>
+            <button class="top-bar-btn" onclick="clearAll()">🗑️ Clear All</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <span>Files</span>
+                    <div class="sidebar-actions">
+                        <span class="sidebar-action" onclick="showNewFileModal()" title="New File">📄</span>
+                        <span class="sidebar-action" onclick="showNewFolderModal()" title="New Folder">📁</span>
+                    </div>
+                </div>
+                <div class="file-tree" id="fileTree"></div>
+            </div>
+
+            <!-- Editor Area -->
+            <div class="editor-area">
+                <div class="tabs-container" id="tabsContainer"></div>
+                <div class="editor-container">
+                    <div class="editor-placeholder" id="editorPlaceholder">
+                        <div class="editor-placeholder-icon">📝</div>
+                        <div>Create a new file or select an existing one to start coding</div>
+                    </div>
+                    <!-- Editor wrappers will be added dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Panel -->
+        <div class="bottom-panel" id="bottomPanel">
+            <div class="bottom-panel-header">
+                <div class="panel-tab active" onclick="switchPanel('output')">Output</div>
+                <div class="panel-tab" onclick="switchPanel('terminal')">Terminal</div>
+                <div class="panel-actions">
+                    <span class="panel-action" onclick="togglePanel()">⬇️</span>
+                </div>
+            </div>
+            <div class="panel-content active" id="outputPanel">
+                <div class="output-panel" id="outputContent">Ready to run your code...</div>
+            </div>
+            <div class="panel-content" id="terminalPanel">
+                <div class="terminal" id="terminal">
+                    <div class="terminal-line">Welcome to Standalone IDE Terminal</div>
+                    <div class="terminal-line">Type 'help' for available commands</div>
+                    <div class="terminal-input-line">
+                        <span class="terminal-prompt">$</span>
+                        <input type="text" class="terminal-input" id="terminalInput" placeholder="Enter command..." onkeydown="handleTerminalInput(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header" id="modalTitle">Create New File</div>
+            <input type="text" class="modal-input" id="modalInput" placeholder="Enter name...">
+            <select class="modal-select" id="modalLanguage" style="display:none;">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="c">C</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="plaintext">Plain Text</option>
+            </select>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="modalConfirm" onclick="confirmModal()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="renameFile()">✏️ Rename</div>
+        <div class="context-menu-item" onclick="deleteFile()">🗑️ Delete</div>
+    </div>
+
+    <script>
+        // State Management
+        let files = {};
+        let currentFile = null;
+        let openTabs = [];
+        let modalCallback = null;
+        let contextMenuTarget = null;
+        let fileCounter = 0;
+
+        // Initialize
+        window.onload = function() {
+            loadFromLocalStorage();
+            renderFileTree();
+            
+            // Create sample files if empty
+            if (Object.keys(files).length === 0) {
+                files['example.js'] = {
+                    name: 'example.js',
+                    type: 'file',
+                    language: 'javascript',
+                    content: '// Welcome to Standalone IDE!\n// This editor works completely offline.\n\nconsole.log("Hello, World!");\nconsole.log("This is JavaScript running in your browser");\n\nfunction greet(name) {\n    return `Hello, ${name}!`;\n}\n\nconsole.log(greet("Developer"));'
+                };
+                saveToLocalStorage();
+                renderFileTree();
+            }
+        };
+
+        // File Management
+        function createFile(name, language = 'javascript') {
+            if (files[name]) {
+                alert('File already exists!');
+                return;
+            }
+            
+            files[name] = {
+                name: name,
+                type: 'file',
+                language: language,
+                content: getTemplateContent(language)
+            };
+            
+            saveToLocalStorage();
+            renderFileTree();
+            openFile(name);
+        }
+
+        function createFolder(name) {
+            if (files[name]) {
+                alert('Folder already exists!');
+                return;
+            }
+            
+            files[name] = {
+                name: name,
+                type: 'folder',
+                children: {}
+            };
+            
+            saveToLocalStorage();
+            renderFileTree();
+        }
+
+        function openFile(fileName) {
+            const file = files[fileName];
+            if (!file || file.type !== 'file') return;
+            
+            // Check if already open
+            if (openTabs.includes(fileName)) {
+                currentFile = fileName;
+                updateTabs();
+                showEditor(fileName);
+                return;
+            }
+            
+            openTabs.push(fileName);
+            currentFile = fileName;
+            createEditorForFile(fileName);
+            updateTabs();
+            showEditor(fileName);
+        }
+
+        function closeFile(fileName) {
+            const index = openTabs.indexOf(fileName);
+            if (index > -1) {
+                openTabs.splice(index, 1);
+                
+                // Remove editor
+                const editor = document.getElementById(`editor-${fileName}`);
+                if (editor) editor.remove();
+                
+                // Switch to another tab
+                if (currentFile === fileName) {
+                    if (openTabs.length > 0) {
+                        currentFile = openTabs[Math.max(0, index - 1)];
+                        showEditor(currentFile);
+                    } else {
+                        currentFile = null;
+                        document.getElementById('editorPlaceholder').style.display = 'flex';
+                    }
+                }
+                
+                updateTabs();
+            }
+        }
+
+        function deleteFile() {
+            if (!contextMenuTarget) return;
+            
+            if (confirm(`Delete ${contextMenuTarget}?`)) {
+                delete files[contextMenuTarget];
+                
+                // Close tab if open
+                if (openTabs.includes(contextMenuTarget)) {
+                    closeFile(contextMenuTarget);
+                }
+                
+                saveToLocalStorage();
+                renderFileTree();
+            }
+            
+            closeContextMenu();
+        }
+
+        function renameFile() {
+            if (!contextMenuTarget) return;
+            
+            const newName = prompt('New name:', contextMenuTarget);
+            if (newName && newName !== contextMenuTarget) {
+                if (files[newName]) {
+                    alert('A file with that name already exists!');
+                    return;
+                }
+                
+                files[newName] = files[contextMenuTarget];
+                files[newName].name = newName;
+                delete files[contextMenuTarget];
+                
+                // Update open tabs
+                const index = openTabs.indexOf(contextMenuTarget);
+                if (index > -1) {
+                    openTabs[index] = newName;
+                    if (currentFile === contextMenuTarget) {
+                        currentFile = newName;
+                    }
+                }
+                
+                saveToLocalStorage();
+                renderFileTree();
+                updateTabs();
+            }
+            
+            closeContextMenu();
+        }
+
+        // Editor Management
+        function createEditorForFile(fileName) {
+            const file = files[fileName];
+            const editorContainer = document.querySelector('.editor-container');
+            
+            const wrapper = document.createElement('div');
+            wrapper.id = `editor-${fileName}`;
+            wrapper.className = 'editor-wrapper';
+            
+            wrapper.innerHTML = `
+                <div class="editor-toolbar">
+                    <button class="editor-btn" onclick="runCode('${fileName}')">▶️ Run</button>
+                    <button class="editor-btn" style="background: #0e639c;" onclick="saveFile('${fileName}')">💾 Save</button>
+                    <select class="language-select" onchange="changeLanguage('${fileName}', this.value)">
+                        <option value="javascript" ${file.language === 'javascript' ? 'selected' : ''}>JavaScript</option>
+                        <option value="python" ${file.language === 'python' ? 'selected' : ''}>Python</option>
+                        <option value="java" ${file.language === 'java' ? 'selected' : ''}>Java</option>
+                        <option value="c" ${file.language === 'c' ? 'selected' : ''}>C</option>
+                        <option value="html" ${file.language === 'html' ? 'selected' : ''}>HTML</option>
+                        <option value="css" ${file.language === 'css' ? 'selected' : ''}>CSS</option>
+                        <option value="plaintext" ${file.language === 'plaintext' ? 'selected' : ''}>Plain Text</option>
+                    </select>
+                </div>
+                <textarea id="code-${fileName}" class="code-editor" spellcheck="false">${file.content}</textarea>
+            `;
+            
+            editorContainer.appendChild(wrapper);
+            
+            // Add event listener for auto-save
+            const textarea = document.getElementById(`code-${fileName}`);
+            textarea.oninput = function() {
+                files[fileName].content = this.value;
+            };
+        }
+
+        function showEditor(fileName) {
+            document.getElementById('editorPlaceholder').style.display = 'none';
+            
+            document.querySelectorAll('.editor-wrapper').forEach(wrapper => {
+                wrapper.classList.remove('active');
+            });
+            
+            const editor = document.getElementById(`editor-${fileName}`);
+            if (editor) {
+                editor.classList.add('active');
+            }
+        }
+
+        function saveFile(fileName) {
+            const textarea = document.getElementById(`code-${fileName}`);
+            if (textarea) {
+                files[fileName].content = textarea.value;
+                saveToLocalStorage();
+                showOutput('✅ File saved successfully!', false);
+            }
+        }
+
+        function changeLanguage(fileName, language) {
+            files[fileName].language = language;
+            saveToLocalStorage();
+        }
+
+        // Code Execution
+        function runCode(fileName) {
+            const file = files[fileName];
+            if (!file) return;
+            
+            const code = file.content;
+            const language = file.language;
+            
+            switchPanel('output');
+            showOutput('Running code...', false);
+            
+            setTimeout(() => {
+                try {
+                    if (language === 'javascript') {
+                        // Capture console output
+                        const logs = [];
+                        const originalLog = console.log;
+                        const originalError = console.error;
+                        
+                        console.log = function(...args) {
+                            logs.push(args.join(' '));
+                            originalLog.apply(console, args);
+                        };
+                        
+                        console.error = function(...args) {
+                            logs.push('ERROR: ' + args.join(' '));
+                            originalError.apply(console, args);
+                        };
+                        
+                        // Execute code
+                        eval(code);
+                        
+                        // Restore console
+                        console.log = originalLog;
+                        console.error = originalError;
+                        
+                        showOutput(logs.length > 0 ? logs.join('\n') : '✅ Code executed successfully (no output)', false);
+                    } else if (language === 'html') {
+                        // Open HTML in new window
+                        const newWindow = window.open();
+                        newWindow.document.write(code);
+                        newWindow.document.close();
+                        showOutput('✅ HTML opened in new window', false);
+                    } else {
+                        showOutput(`⚠️ ${language.toUpperCase()} execution is not supported in standalone mode.\n\nThis IDE runs entirely in your browser without a backend server.\nOnly JavaScript can be executed directly.\n\nFor ${language.toUpperCase()}, you would need:\n- Python: Install Python locally and run from terminal\n- Java: Install JDK and compile/run from terminal\n- C: Install GCC compiler and compile/run from terminal`, true);
+                    }
+                } catch (error) {
+                    showOutput(`❌ Error: ${error.message}\n\n${error.stack}`, true);
+                }
+            }, 100);
+        }
+
+        // UI Functions
+        function renderFileTree() {
+            const tree = document.getElementById('fileTree');
+            tree.innerHTML = '';
+            
+            Object.keys(files).sort().forEach(fileName => {
+                const file = files[fileName];
+                const item = document.createElement('div');
+                item.className = 'file-tree-item' + (currentFile === fileName ? ' selected' : '');
+                
+                const icon = file.type === 'folder' ? '📁' : getFileIcon(fileName);
+                item.innerHTML = `<span class="file-icon">${icon}</span><span>${fileName}</span>`;
+                
+                if (file.type === 'file') {
+                    item.onclick = () => openFile(fileName);
+                }
+                
+                item.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, fileName);
+                };
+                
+                tree.appendChild(item);
+            });
+        }
+
+        function getFileIcon(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            const icons = {
+                'js': '📜',
+                'py': '🐍',
+                'java': '☕',
+                'c': '©️',
+                'cpp': '©️',
+                'html': '🌐',
+                'css': '🎨',
+                'json': '📋',
+                'md': '📝',
+                'txt': '📄'
+            };
+            return icons[ext] || '📄';
+        }
+
+        function updateTabs() {
+            const container = document.getElementById('tabsContainer');
+            container.innerHTML = '';
+            
+            openTabs.forEach(fileName => {
+                const tab = document.createElement('div');
+                tab.className = 'tab' + (currentFile === fileName ? ' active' : '');
+                tab.innerHTML = `<span>${fileName}</span><span class="tab-close" onclick="event.stopPropagation(); closeFile('${fileName}')">✕</span>`;
+                tab.onclick = () => {
+                    currentFile = fileName;
+                    updateTabs();
+                    showEditor(fileName);
+                };
+                container.appendChild(tab);
+            });
+        }
+
+        function showOutput(text, isError) {
+            const output = document.getElementById('outputContent');
+            output.textContent = text;
+            output.className = 'output-panel ' + (isError ? 'output-error' : 'output-success');
+        }
+
+        function switchPanel(panelName) {
+            document.querySelectorAll('.panel-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.panel-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${panelName}Panel`).classList.add('active');
+        }
+
+        function togglePanel() {
+            document.getElementById('bottomPanel').classList.toggle('collapsed');
+        }
+
+        // Modal Functions
+        function showNewFileModal() {
+            const modal = document.getElementById('modalOverlay');
+            const input = document.getElementById('modalInput');
+            const select = document.getElementById('modalLanguage');
+            const title = document.getElementById('modalTitle');
+            
+            title.textContent = 'Create New File';
+            input.value = `file${++fileCounter}.js`;
+            input.placeholder = 'filename.js';
+            select.style.display = 'block';
+            select.value = 'javascript';
+            
+            modalCallback = () => {
+                const name = input.value.trim();
+                const language = select.value;
+                if (name) createFile(name, language);
+            };
+            
+            modal.classList.add('active');
+            input.focus();
+            input.select();
+        }
+
+        function showNewFolderModal() {
+            const modal = document.getElementById('modalOverlay');
+            const input = document.getElementById('modalInput');
+            const select = document.getElementById('modalLanguage');
+            const title = document.getElementById('modalTitle');
+            
+            title.textContent = 'Create New Folder';
+            input.value = '';
+            input.placeholder = 'folder-name';
+            select.style.display = 'none';
+            
+            modalCallback = () => {
+                const name = input.value.trim();
+                if (name) createFolder(name);
+            };
+            
+            modal.classList.add('active');
+            input.focus();
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            modalCallback = null;
+        }
+
+        function confirmModal() {
+            if (modalCallback) modalCallback();
+            closeModal();
+        }
+
+        // Context Menu
+        function showContextMenu(event, fileName) {
+            const menu = document.getElementById('contextMenu');
+            contextMenuTarget = fileName;
+            
+            menu.style.display = 'block';
+            menu.style.left = `${event.clientX}px`;
+            menu.style.top = `${event.clientY}px`;
+        }
+
+        function closeContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+            contextMenuTarget = null;
+        }
+
+        document.addEventListener('click', closeContextMenu);
+
+        // Terminal
+        function handleTerminalInput(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const command = input.value.trim();
+                
+                if (command) {
+                    addTerminalLine(`$ ${command}`);
+                    executeTerminalCommand(command);
+                    input.value = '';
+                }
+            }
+        }
+
+        function addTerminalLine(text, isError = false) {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.textContent = text;
+            if (isError) line.style.color = '#f48771';
+            
+            terminal.insertBefore(line, terminal.querySelector('.terminal-input-line'));
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function executeTerminalCommand(command) {
+            const parts = command.split(' ');
+            const cmd = parts[0].toLowerCase();
+            
+            switch(cmd) {
+                case 'help':
+                    addTerminalLine('Available commands:');
+                    addTerminalLine('  help     - Show this help');
+                    addTerminalLine('  clear    - Clear terminal');
+                    addTerminalLine('  ls       - List files');
+                    addTerminalLine('  cat      - Show file content (cat filename)');
+                    addTerminalLine('  echo     - Print text (echo text)');
+                    addTerminalLine('  date     - Show current date/time');
+                    break;
+                    
+                case 'clear':
+                    document.querySelectorAll('#terminal .terminal-line').forEach(line => line.remove());
+                    break;
+                    
+                case 'ls':
+                    Object.keys(files).forEach(name => {
+                        const icon = files[name].type === 'folder' ? '📁' : '📄';
+                        addTerminalLine(`${icon} ${name}`);
+                    });
+                    break;
+                    
+                case 'cat':
+                    if (parts[1]) {
+                        const file = files[parts[1]];
+                        if (file && file.type === 'file') {
+                            addTerminalLine(file.content);
+                        } else {
+                            addTerminalLine(`cat: ${parts[1]}: No such file`, true);
+                        }
+                    } else {
+                        addTerminalLine('Usage: cat <filename>', true);
+                    }
+                    break;
+                    
+                case 'echo':
+                    addTerminalLine(parts.slice(1).join(' '));
+                    break;
+                    
+                case 'date':
+                    addTerminalLine(new Date().toString());
+                    break;
+                    
+                default:
+                    addTerminalLine(`Command not found: ${cmd}`, true);
+                    addTerminalLine('Type "help" for available commands');
+            }
+        }
+
+        // File Operations
+        function downloadFile() {
+            if (!currentFile) {
+                alert('No file is currently open!');
+                return;
+            }
+            
+            const file = files[currentFile];
+            const blob = new Blob([file.content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentFile;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showOutput(`✅ Downloaded: ${currentFile}`, false);
+        }
+
+        function clearAll() {
+            if (confirm('Clear all files? This cannot be undone!')) {
+                files = {};
+                openTabs = [];
+                currentFile = null;
+                
+                document.querySelectorAll('.editor-wrapper').forEach(w => w.remove());
+                document.getElementById('editorPlaceholder').style.display = 'flex';
+                
+                saveToLocalStorage();
+                renderFileTree();
+                updateTabs();
+                
+                showOutput('All files cleared', false);
+            }
+        }
+
+        // Storage
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('ide-files', JSON.stringify(files));
+            } catch (e) {
+                console.error('Failed to save to localStorage:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('ide-files');
+                if (saved) {
+                    files = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Failed to load from localStorage:', e);
+            }
+        }
+
+        // Templates
+        function getTemplateContent(language) {
+            const templates = {
+                javascript: '// JavaScript\nconsole.log("Hello, World!");\n',
+                python: '# Python\nprint("Hello, World!")\n',
+                java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}\n',
+                c: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}\n',
+                html: '<!DOCTYPE html>\n<html>\n<head>\n    <title>Page Title</title>\n</head>\n<body>\n    <h1>Hello, World!</h1>\n</body>\n</html>\n',
+                css: '/* CSS */\nbody {\n    font-family: sans-serif;\n    margin: 0;\n    padding: 20px;\n}\n',
+                plaintext: ''
+            };
+            return templates[language] || '';
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + S to save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (currentFile) saveFile(currentFile);
+            }
+            
+            // Ctrl/Cmd + Enter to run
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (currentFile) runCode(currentFile);
+            }
+        });
+
+        // Modal keyboard handling
+        document.getElementById('modalInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                confirmModal();
+            } else if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
+

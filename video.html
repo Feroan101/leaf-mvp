@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After Effects Clone - Standalone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Menu Bar */
+        .menu-bar {
+            height: 40px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        .menu-bar button {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .menu-bar button:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            height: 48px;
+            background: #252525;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 8px;
+        }
+
+        .toolbar button {
+            padding: 8px 16px;
+            background: #1f1f1f;
+            border: 1px solid #3a3a3a;
+            color: #ccc;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .toolbar button:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Tools Panel */
+        .tools-panel {
+            width: 48px;
+            background: #1f1f1f;
+            border-right: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            gap: 4px;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .tool-btn.active {
+            background: #3a7dd1;
+            color: #fff;
+        }
+
+        /* Project Panel */
+        .project-panel {
+            width: 240px;
+            background: #1f1f1f;
+            border-right: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            height: 40px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ccc;
+        }
+
+        .layer-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        /* Composition Viewer */
+        .composition-viewer {
+            flex: 1;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #composition-canvas {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            width: 300px;
+            background: #1f1f1f;
+            border-left: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .property-group {
+            padding: 12px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .property-group h3 {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .property-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .property-input {
+            flex: 1;
+            padding: 6px 8px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #fff;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .property-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        /* Timeline */
+        .timeline {
+            height: 280px;
+            background: #1f1f1f;
+            border-top: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .playback-controls {
+            height: 48px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            background: #3a7dd1;
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .play-btn:hover {
+            background: #4a8de1;
+        }
+
+        .control-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .time-display {
+            font-size: 11px;
+            color: #888;
+            font-family: monospace;
+        }
+
+        .timeline-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .layers-column {
+            width: 200px;
+            border-right: 1px solid #2a2a2a;
+            overflow-y: auto;
+        }
+
+        .layer-header {
+            height: 32px;
+            background: #252525;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+        }
+
+        .layer-item {
+            height: 40px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .layer-item:hover {
+            background: #2a2a2a;
+        }
+
+        .layer-item.selected {
+            background: #3a7dd1;
+        }
+
+        .layer-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .timeline-grid {
+            flex: 1;
+            position: relative;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .timeline-ruler {
+            height: 32px;
+            background: #252525;
+            border-bottom: 1px solid #2a2a2a;
+            position: relative;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            border-left: 1px solid #3a3a3a;
+            font-size: 10px;
+            color: #666;
+            padding-left: 4px;
+        }
+
+        .layer-bar {
+            height: 40px;
+            border-bottom: 1px solid #2a2a2a;
+            position: relative;
+        }
+
+        .layer-duration {
+            position: absolute;
+            top: 8px;
+            height: 24px;
+            background: #2a5a8a;
+            border-radius: 3px;
+        }
+
+        .layer-duration.selected {
+            background: #3a7dd1;
+        }
+
+        .playhead {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ff0000;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .playhead::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -5px;
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+
+        .zoom-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .zoom-slider {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <button>File</button>
+            <button>Edit</button>
+            <button>Composition</button>
+            <button>Layer</button>
+            <button>Effect</button>
+            <button>Window</button>
+            <button>Help</button>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button onclick="app.addLayer('text')">+ New Text</button>
+            <button onclick="app.addLayer('shape')">+ New Shape</button>
+            <button onclick="app.addLayer('solid')">+ New Solid</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Tools Panel -->
+            <div class="tools-panel">
+                <button class="tool-btn active" title="Selection (V)">⌖</button>
+                <button class="tool-btn" title="Hand (H)">✋</button>
+                <button class="tool-btn" title="Zoom (Z)">🔍</button>
+                <button class="tool-btn" title="Text (T)">T</button>
+                <button class="tool-btn" title="Rectangle (Q)">▭</button>
+            </div>
+
+            <!-- Project Panel -->
+            <div class="project-panel">
+                <div class="panel-header">Project</div>
+                <div class="layer-list" id="project-list">
+                    <div style="padding: 8px; color: #666; font-size: 11px;">
+                        Main Composition<br>
+                        1920x1080 • 30fps
+                    </div>
+                </div>
+            </div>
+
+            <!-- Composition Viewer -->
+            <div class="composition-viewer">
+                <div class="panel-header">
+                    Main Composition
+                    <span style="margin-left: auto; font-size: 11px; color: #666;" id="progress">0%</span>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="composition-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Properties Panel -->
+            <div class="properties-panel">
+                <div class="panel-header">Properties</div>
+                <div id="properties-content">
+                    <div style="padding: 20px; text-align: center; color: #666; font-size: 12px;">
+                        Select a layer to edit properties
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <div class="playback-controls">
+                <button class="control-btn" onclick="app.jumpToStart()" title="Jump to Start">⏮</button>
+                <button class="play-btn" onclick="app.togglePlay()" id="playBtn">▶</button>
+                <button class="control-btn" onclick="app.jumpToEnd()" title="Jump to End">⏭</button>
+                <div class="time-display">
+                    Time: <span id="currentTime">0.00</span>s / <span id="duration">10.00</span>s
+                </div>
+                <div class="zoom-control">
+                    <span style="font-size: 11px; color: #888;">Zoom:</span>
+                    <input type="range" class="zoom-slider" min="10" max="100" value="30" 
+                           onchange="app.setZoom(this.value)" id="zoomSlider">
+                </div>
+            </div>
+            <div class="timeline-content">
+                <div class="layers-column">
+                    <div class="layer-header">Layers</div>
+                    <div id="layers-list"></div>
+                </div>
+                <div class="timeline-grid" id="timeline-grid">
+                    <div class="timeline-ruler" id="timeline-ruler"></div>
+                    <div id="timeline-bars"></div>
+                    <div class="playhead" id="playhead"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const app = {
+            composition: {
+                width: 1920,
+                height: 1080,
+                duration: 10,
+                frameRate: 30,
+                backgroundColor: '#000000',
+                layers: []
+            },
+            currentTime: 0,
+            isPlaying: false,
+            selectedLayer: null,
+            zoom: 30,
+            canvas: null,
+            ctx: null,
+            animationFrame: null,
+            lastTime: Date.now(),
+
+            init() {
+                this.canvas = document.getElementById('composition-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.width = this.composition.width;
+                this.canvas.height = this.composition.height;
+
+                // Add initial layers
+                this.addLayer('text', 'AFTER EFFECTS CLONE', { x: 960, y: 400 });
+                this.addLayer('shape', null, { x: 960, y: 540 });
+                this.addLayer('solid', null, { x: 960, y: 540 });
+
+                this.render();
+                this.updateTimeline();
+                this.updateLayers();
+
+                // Timeline click handler
+                document.getElementById('timeline-grid').addEventListener('click', (e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left - 200;
+                    if (x >= 0) {
+                        this.currentTime = Math.max(0, Math.min(this.composition.duration, x / this.zoom));
+                        this.render();
+                        this.updatePlayhead();
+                        this.updateTimeDisplay();
+                    }
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.togglePlay();
+                    }
+                });
+            },
+
+            addLayer(type, content = null, position = null) {
+                const layer = {
+                    id: 'layer-' + Date.now(),
+                    name: `${type.charAt(0).toUpperCase() + type.slice(1)} Layer ${this.composition.layers.length + 1}`,
+                    type: type,
+                    visible: true,
+                    inPoint: 0,
+                    outPoint: this.composition.duration,
+                    transform: {
+                        position: position || { x: this.composition.width / 2, y: this.composition.height / 2 },
+                        scale: { x: 100, y: 100 },
+                        rotation: 0,
+                        opacity: 100
+                    }
+                };
+
+                if (type === 'text') {
+                    layer.content = content || 'New Text';
+                    layer.fontSize = 48;
+                    layer.fontFamily = 'Arial';
+                    layer.color = '#ffffff';
+                } else if (type === 'shape') {
+                    layer.shapeType = 'rectangle';
+                    layer.width = 400;
+                    layer.height = 300;
+                    layer.fillColor = '#ff6b6b';
+                } else if (type === 'solid') {
+                    layer.color = '#4ecdc4';
+                    layer.width = this.composition.width;
+                    layer.height = this.composition.height;
+                }
+
+                this.composition.layers.unshift(layer);
+                this.updateLayers();
+                this.updateTimeline();
+                this.render();
+            },
+
+            selectLayer(layer) {
+                this.selectedLayer = layer;
+                this.updateLayers();
+                this.updateProperties();
+            },
+
+            updateProperty(property, axis, value) {
+                if (!this.selectedLayer) return;
+                
+                if (axis) {
+                    this.selectedLayer.transform[property][axis] = parseFloat(value) || 0;
+                } else {
+                    this.selectedLayer.transform[property] = parseFloat(value) || 0;
+                }
+                
+                this.render();
+            },
+
+            updateTextContent(value) {
+                if (!this.selectedLayer || this.selectedLayer.type !== 'text') return;
+                this.selectedLayer.content = value;
+                this.render();
+            },
+
+            updateLayers() {
+                const layersList = document.getElementById('layers-list');
+                layersList.innerHTML = '';
+
+                this.composition.layers.forEach(layer => {
+                    const layerEl = document.createElement('div');
+                    layerEl.className = 'layer-item' + (this.selectedLayer?.id === layer.id ? ' selected' : '');
+                    layerEl.innerHTML = `
+                        <span style="font-size: 16px;">${layer.visible ? '👁' : '👁‍🗨'}</span>
+                        <span class="layer-name">${layer.name}</span>
+                    `;
+                    layerEl.onclick = () => this.selectLayer(layer);
+                    layersList.appendChild(layerEl);
+                });
+            },
+
+            updateProperties() {
+                const props = document.getElementById('properties-content');
+                
+                if (!this.selectedLayer) {
+                    props.innerHTML = '<div style="padding: 20px; text-align: center; color: #666; font-size: 12px;">Select a layer to edit properties</div>';
+                    return;
+                }
+
+                const layer = this.selectedLayer;
+                props.innerHTML = `
+                    <div class="property-group">
+                        <h3>Layer Name</h3>
+                        <input type="text" class="property-input" value="${layer.name}" 
+                               onchange="app.selectedLayer.name = this.value; app.updateLayers();">
+                    </div>
+                    <div class="property-group">
+                        <h3>Transform</h3>
+                        <div class="property-label">Position</div>
+                        <div class="property-row">
+                            <input type="number" class="property-input" placeholder="X" 
+                                   value="${layer.transform.position.x}" 
+                                   onchange="app.updateProperty('position', 'x', this.value)">
+                            <input type="number" class="property-input" placeholder="Y" 
+                                   value="${layer.transform.position.y}" 
+                                   onchange="app.updateProperty('position', 'y', this.value)">
+                        </div>
+                        <div class="property-label">Scale (%)</div>
+                        <div class="property-row">
+                            <input type="number" class="property-input" placeholder="X" 
+                                   value="${layer.transform.scale.x}" 
+                                   onchange="app.updateProperty('scale', 'x', this.value)">
+                            <input type="number" class="property-input" placeholder="Y" 
+                                   value="${layer.transform.scale.y}" 
+                                   onchange="app.updateProperty('scale', 'y', this.value)">
+                        </div>
+                        <div class="property-label">Rotation (°)</div>
+                        <input type="number" class="property-input" 
+                               value="${layer.transform.rotation}" 
+                               onchange="app.updateProperty('rotation', null, this.value)">
+                        <div class="property-label">Opacity (%)</div>
+                        <input type="number" class="property-input" min="0" max="100" 
+                               value="${layer.transform.opacity}" 
+                               onchange="app.updateProperty('opacity', null, this.value)">
+                    </div>
+                    ${layer.type === 'text' ? `
+                    <div class="property-group">
+                        <h3>Text</h3>
+                        <div class="property-label">Content</div>
+                        <input type="text" class="property-input" value="${layer.content}" 
+                               onchange="app.updateTextContent(this.value)">
+                        <div class="property-label">Font Size</div>
+                        <input type="number" class="property-input" value="${layer.fontSize}" 
+                               onchange="app.selectedLayer.fontSize = parseInt(this.value) || 12; app.render();">
+                    </div>
+                    ` : ''}
+                `;
+            },
+
+            updateTimeline() {
+                const ruler = document.getElementById('timeline-ruler');
+                const bars = document.getElementById('timeline-bars');
+                
+                ruler.innerHTML = '';
+                bars.innerHTML = '';
+
+                const width = this.composition.duration * this.zoom;
+                ruler.style.width = width + 'px';
+                bars.style.width = width + 'px';
+
+                // Render ruler markers
+                for (let i = 0; i <= this.composition.duration; i++) {
+                    const marker = document.createElement('div');
+                    marker.className = 'timeline-marker';
+                    marker.style.left = (i * this.zoom) + 'px';
+                    marker.textContent = i + 's';
+                    ruler.appendChild(marker);
+                }
+
+                // Render layer bars
+                this.composition.layers.forEach(layer => {
+                    const bar = document.createElement('div');
+                    bar.className = 'layer-bar';
+                    
+                    const duration = document.createElement('div');
+                    duration.className = 'layer-duration' + (this.selectedLayer?.id === layer.id ? ' selected' : '');
+                    duration.style.left = (layer.inPoint * this.zoom) + 'px';
+                    duration.style.width = ((layer.outPoint - layer.inPoint) * this.zoom) + 'px';
+                    
+                    bar.appendChild(duration);
+                    bars.appendChild(bar);
+                });
+
+                this.updatePlayhead();
+            },
+
+            updatePlayhead() {
+                const playhead = document.getElementById('playhead');
+                playhead.style.left = (this.currentTime * this.zoom) + 'px';
+            },
+
+            updateTimeDisplay() {
+                document.getElementById('currentTime').textContent = this.currentTime.toFixed(2);
+                document.getElementById('progress').textContent = 
+                    Math.floor((this.currentTime / this.composition.duration) * 100) + '%';
+            },
+
+            setZoom(value) {
+                this.zoom = parseInt(value);
+                this.updateTimeline();
+            },
+
+            togglePlay() {
+                this.isPlaying = !this.isPlaying;
+                document.getElementById('playBtn').textContent = this.isPlaying ? '⏸' : '▶';
+                
+                if (this.isPlaying) {
+                    if (this.currentTime >= this.composition.duration) {
+                        this.currentTime = 0;
+                    }
+                    this.lastTime = Date.now();
+                    this.animate();
+                } else {
+                    if (this.animationFrame) {
+                        cancelAnimationFrame(this.animationFrame);
+                    }
+                }
+            },
+
+            animate() {
+                if (!this.isPlaying) return;
+
+                const now = Date.now();
+                const deltaTime = (now - this.lastTime) / 1000;
+                this.lastTime = now;
+
+                this.currentTime += deltaTime;
+                if (this.currentTime >= this.composition.duration) {
+                    this.currentTime = this.composition.duration;
+                    this.isPlaying = false;
+                    document.getElementById('playBtn').textContent = '▶';
+                }
+
+                this.render();
+                this.updatePlayhead();
+                this.updateTimeDisplay();
+
+                if (this.isPlaying) {
+                    this.animationFrame = requestAnimationFrame(() => this.animate());
+                }
+            },
+
+            jumpToStart() {
+                this.currentTime = 0;
+                this.render();
+                this.updatePlayhead();
+                this.updateTimeDisplay();
+            },
+
+            jumpToEnd() {
+                this.currentTime = this.composition.duration;
+                this.render();
+                this.updatePlayhead();
+                this.updateTimeDisplay();
+            },
+
+            render() {
+                if (!this.ctx) return;
+
+                // Clear canvas
+                this.ctx.fillStyle = this.composition.backgroundColor;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Render layers from bottom to top
+                const visibleLayers = this.composition.layers
+                    .filter(layer => layer.visible && 
+                            this.currentTime >= layer.inPoint && 
+                            this.currentTime <= layer.outPoint)
+                    .reverse();
+
+                visibleLayers.forEach(layer => {
+                    this.ctx.save();
+
+                    const t = layer.transform;
+                    this.ctx.translate(t.position.x, t.position.y);
+                    this.ctx.rotate((t.rotation * Math.PI) / 180);
+                    this.ctx.scale(t.scale.x / 100, t.scale.y / 100);
+                    this.ctx.globalAlpha = t.opacity / 100;
+
+                    switch (layer.type) {
+                        case 'text':
+                            this.ctx.font = `${layer.fontSize}px ${layer.fontFamily}`;
+                            this.ctx.fillStyle = layer.color;
+                            this.ctx.textAlign = 'center';
+                            this.ctx.textBaseline = 'middle';
+                            this.ctx.fillText(layer.content, 0, 0);
+                            break;
+                        case 'shape':
+                            this.ctx.fillStyle = layer.fillColor;
+                            if (layer.shapeType === 'rectangle') {
+                                this.ctx.fillRect(-layer.width / 2, -layer.height / 2, layer.width, layer.height);
+                            } else if (layer.shapeType === 'ellipse') {
+                                this.ctx.beginPath();
+                                this.ctx.ellipse(0, 0, layer.width / 2, layer.height / 2, 0, 0, 2 * Math.PI);
+                                this.ctx.fill();
+                            }
+                            break;
+                        case 'solid':
+                            this.ctx.fillStyle = layer.color;
+                            this.ctx.fillRect(-layer.width / 2, -layer.height / 2, layer.width, layer.height);
+                            break;
+                    }
+
+                    this.ctx.restore();
+                });
+            }
+        };
+
+        // Initialize the app when DOM is ready
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>

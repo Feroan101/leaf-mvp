@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photoshop Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            overflow: hidden;
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            height: 56px;
+            background: #1e1e1e;
+            border-bottom: 1px solid #2d2d2d;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 8px;
+        }
+
+        .menu-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .menu-btn:hover {
+            background: #2d2d2d;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: #2d2d2d;
+        }
+
+        .icon-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .zoom-display {
+            color: #e0e0e0;
+            font-size: 13px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            width: 64px;
+            background: #1e1e1e;
+            border-right: 1px solid #2d2d2d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            gap: 4px;
+        }
+
+        .tool-btn {
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-btn:hover {
+            background: #2d2d2d;
+        }
+
+        .tool-btn.active {
+            background: #3d3d3d;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 32px;
+        }
+
+        .canvas-wrapper {
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transform-origin: center;
+        }
+
+        canvas {
+            background: white;
+            cursor: crosshair;
+            image-rendering: pixelated;
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            width: 288px;
+            background: #1e1e1e;
+            border-left: 1px solid #2d2d2d;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e0e0e0;
+        }
+
+        .property-group {
+            margin-bottom: 24px;
+        }
+
+        .property-label {
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .property-value {
+            color: #e0e0e0;
+            font-size: 14px;
+            text-transform: capitalize;
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .color-input {
+            width: 64px;
+            height: 64px;
+            border: 2px solid #3d3d3d;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .color-hex {
+            flex: 1;
+            padding: 8px 12px;
+            background: #2d2d2d;
+            border: 1px solid #3d3d3d;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 13px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            background: #3d3d3d;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Layers Panel */
+        .layers-panel {
+            width: 288px;
+            background: #1e1e1e;
+            border-left: 1px solid #2d2d2d;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .layers-header {
+            padding: 16px;
+            border-bottom: 1px solid #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .layers-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .layers-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .layer-item {
+            padding: 12px;
+            margin-bottom: 4px;
+            background: #2d2d2d;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .layer-item:hover {
+            background: #353535;
+        }
+
+        .layer-item.active {
+            background: #3d3d3d;
+            border-color: #0d7acc;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .layer-name {
+            color: #e0e0e0;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .layer-details {
+            padding-top: 12px;
+            margin-top: 12px;
+            border-top: 1px solid #454545;
+        }
+
+        .quick-actions {
+            font-size: 11px;
+            color: #808080;
+            line-height: 1.6;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            border: 1px solid #3d3d3d;
+            border-radius: 8px;
+            padding: 24px;
+            min-width: 400px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+
+        .modal-description {
+            font-size: 13px;
+            color: #a0a0a0;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: #a0a0a0;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: #1e1e1e;
+            border: 1px solid #3d3d3d;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 6px 12px;
+            background: #1e1e1e;
+            border: 1px solid #3d3d3d;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .preset-btn:hover {
+            background: #3d3d3d;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 10px 16px;
+            background: #0d7acc;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #0d6abd;
+        }
+
+        .separator {
+            height: 1px;
+            background: #2d2d2d;
+            margin: 16px 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <button class="menu-btn" onclick="showNewCanvasModal()">File</button>
+            <button class="menu-btn">Edit</button>
+            <button class="menu-btn" onclick="showFilterMenu()">Filter</button>
+            
+            <div class="spacer"></div>
+            
+            <button class="icon-btn" onclick="undo()" id="undoBtn" disabled title="Undo">↶</button>
+            <button class="icon-btn" onclick="redo()" id="redoBtn" disabled title="Redo">↷</button>
+            <div style="width: 1px; height: 24px; background: #2d2d2d; margin: 0 8px;"></div>
+            <button class="icon-btn" onclick="zoomOut()">−</button>
+            <span class="zoom-display" id="zoomDisplay">100%</span>
+            <button class="icon-btn" onclick="zoomIn()">+</button>
+            <button class="icon-btn" onclick="resetZoom()" title="Fit to Screen">⊡</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="tool-btn" onclick="selectTool('move')" title="Move">↔</button>
+                <button class="tool-btn" onclick="selectTool('select')" title="Select">⌖</button>
+                <div style="width: 40px; height: 1px; background: #2d2d2d; margin: 4px 0;"></div>
+                <button class="tool-btn active" onclick="selectTool('brush')" title="Brush">🖌</button>
+                <button class="tool-btn" onclick="selectTool('pencil')" title="Pencil">✎</button>
+                <button class="tool-btn" onclick="selectTool('eraser')" title="Eraser">⌫</button>
+                <div style="width: 40px; height: 1px; background: #2d2d2d; margin: 4px 0;"></div>
+                <button class="tool-btn" onclick="selectTool('rectangle')" title="Rectangle">▭</button>
+                <button class="tool-btn" onclick="selectTool('circle')" title="Circle">○</button>
+                <button class="tool-btn" onclick="selectTool('line')" title="Line">─</button>
+                <button class="tool-btn" onclick="selectTool('text')" title="Text">T</button>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <div class="canvas-wrapper" id="canvasWrapper">
+                    <canvas id="mainCanvas" width="1920" height="1080"></canvas>
+                </div>
+            </div>
+
+            <!-- Properties Panel -->
+            <div class="properties-panel">
+                <h3 class="panel-title">Properties</h3>
+                
+                <div class="property-group">
+                    <label class="property-label">Tool</label>
+                    <div class="property-value" id="currentTool">Brush</div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="property-group">
+                    <label class="property-label">Color</label>
+                    <div class="color-picker-group">
+                        <input type="color" class="color-input" id="colorPicker" value="#000000" onchange="updateColor(this.value)">
+                        <input type="text" class="color-hex" id="colorHex" value="#000000" onchange="updateColor(this.value)">
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="property-group" id="brushSizeGroup">
+                    <label class="property-label">Brush Size: <span id="brushSizeValue">5</span>px</label>
+                    <input type="range" class="slider" id="brushSizeSlider" min="1" max="100" value="5" oninput="updateBrushSize(this.value)">
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="property-group">
+                    <label class="property-label">Quick Actions</label>
+                    <div class="quick-actions">
+                        • Click and drag to draw<br>
+                        • Use mouse wheel to zoom<br>
+                        • Ctrl+Z to undo<br>
+                        • Ctrl+Y to redo
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layers Panel -->
+            <div class="layers-panel">
+                <div class="layers-header">
+                    <h3 class="panel-title" style="margin: 0;">Layers</h3>
+                    <div class="layers-actions">
+                        <button class="icon-btn" onclick="addLayer()" title="Add Layer">+</button>
+                        <button class="icon-btn" onclick="deleteLayer()" title="Delete Layer">🗑</button>
+                    </div>
+                </div>
+                <div class="layers-list" id="layersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Canvas Modal -->
+    <div class="modal" id="newCanvasModal">
+        <div class="modal-content">
+            <h2 class="modal-title">New Canvas</h2>
+            <p class="modal-description">Create a new canvas with custom dimensions</p>
+            
+            <div class="form-group">
+                <label class="form-label">Width (px)</label>
+                <input type="number" class="form-input" id="canvasWidth" value="1920">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Height (px)</label>
+                <input type="number" class="form-input" id="canvasHeight" value="1080">
+            </div>
+            
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="setPresetSize(1920, 1080)">1920x1080</button>
+                <button class="preset-btn" onclick="setPresetSize(1080, 1080)">1080x1080</button>
+                <button class="preset-btn" onclick="setPresetSize(1280, 720)">1280x720</button>
+            </div>
+            
+            <button class="btn-primary" onclick="createNewCanvas()">Create</button>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*" onchange="openImage(event)">
+
+    <script>
+        // Global State
+        let state = {
+            layers: [{
+                id: 'layer-1',
+                name: 'Background',
+                visible: true,
+                opacity: 100,
+                blendMode: 'normal',
+                canvas: null
+            }],
+            selectedLayerId: 'layer-1',
+            tool: 'brush',
+            color: '#000000',
+            brushSize: 5,
+            zoom: 1,
+            canvasSize: { width: 1920, height: 1080 },
+            isDrawing: false,
+            startPos: { x: 0, y: 0 },
+            layerCanvases: {}
+        };
+
+        const mainCanvas = document.getElementById('mainCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+
+        // Initialize
+        function init() {
+            initializeLayers();
+            renderLayers();
+            updateLayersList();
+        }
+
+        function initializeLayers() {
+            state.layers.forEach(layer => {
+                if (!state.layerCanvases[layer.id]) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = state.canvasSize.width;
+                    canvas.height = state.canvasSize.height;
+                    state.layerCanvases[layer.id] = canvas;
+                }
+            });
+        }
+
+        function renderLayers() {
+            mainCtx.clearRect(0, 0, state.canvasSize.width, state.canvasSize.height);
+            
+            state.layers.forEach(layer => {
+                if (!layer.visible) return;
+                const layerCanvas = state.layerCanvases[layer.id];
+                if (!layerCanvas) return;
+                
+                mainCtx.save();
+                mainCtx.globalAlpha = layer.opacity / 100;
+                mainCtx.globalCompositeOperation = layer.blendMode;
+                mainCtx.drawImage(layerCanvas, 0, 0);
+                mainCtx.restore();
+            });
+        }
+
+        // Drawing
+        mainCanvas.addEventListener('mousedown', startDrawing);
+        mainCanvas.addEventListener('mousemove', draw);
+        mainCanvas.addEventListener('mouseup', stopDrawing);
+        mainCanvas.addEventListener('mouseleave', stopDrawing);
+
+        function getMousePos(e) {
+            const rect = mainCanvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) / state.zoom,
+                y: (e.clientY - rect.top) / state.zoom
+            };
+        }
+
+        function startDrawing(e) {
+            const pos = getMousePos(e);
+            state.isDrawing = true;
+            state.startPos = pos;
+
+            const layerCanvas = state.layerCanvases[state.selectedLayerId];
+            if (!layerCanvas) return;
+
+            const ctx = layerCanvas.getContext('2d');
+            ctx.strokeStyle = state.color;
+            ctx.fillStyle = state.color;
+            ctx.lineWidth = state.brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (state.tool === 'brush' || state.tool === 'pencil') {
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                renderLayers();
+            } else if (state.tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+        }
+
+        function draw(e) {
+            if (!state.isDrawing) return;
+            const pos = getMousePos(e);
+
+            const layerCanvas = state.layerCanvases[state.selectedLayerId];
+            if (!layerCanvas) return;
+
+            const ctx = layerCanvas.getContext('2d');
+
+            if (state.tool === 'brush' || state.tool === 'pencil' || state.tool === 'eraser') {
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                renderLayers();
+            }
+        }
+
+        function stopDrawing(e) {
+            if (!state.isDrawing) return;
+            const pos = getMousePos(e);
+
+            const layerCanvas = state.layerCanvases[state.selectedLayerId];
+            if (!layerCanvas) {
+                state.isDrawing = false;
+                return;
+            }
+
+            const ctx = layerCanvas.getContext('2d');
+            ctx.strokeStyle = state.color;
+            ctx.fillStyle = state.color;
+            ctx.lineWidth = state.brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (state.tool === 'rectangle') {
+                const width = pos.x - state.startPos.x;
+                const height = pos.y - state.startPos.y;
+                ctx.strokeRect(state.startPos.x, state.startPos.y, width, height);
+            } else if (state.tool === 'circle') {
+                const radius = Math.sqrt(Math.pow(pos.x - state.startPos.x, 2) + Math.pow(pos.y - state.startPos.y, 2));
+                ctx.beginPath();
+                ctx.arc(state.startPos.x, state.startPos.y, radius, 0, 2 * Math.PI);
+                ctx.stroke();
+            } else if (state.tool === 'line') {
+                ctx.beginPath();
+                ctx.moveTo(state.startPos.x, state.startPos.y);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            if (state.tool === 'eraser') {
+                ctx.globalCompositeOperation = 'source-over';
+            }
+
+            state.isDrawing = false;
+            renderLayers();
+        }
+
+        // Tools
+        function selectTool(tool) {
+            state.tool = tool;
+            document.getElementById('currentTool').textContent = tool.charAt(0).toUpperCase() + tool.slice(1);
+            
+            // Update UI
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide brush size
+            const brushSizeGroup = document.getElementById('brushSizeGroup');
+            if (tool === 'brush' || tool === 'pencil' || tool === 'eraser') {
+                brushSizeGroup.style.display = 'block';
+            } else {
+                brushSizeGroup.style.display = 'none';
+            }
+        }
+
+        // Color & Brush
+        function updateColor(value) {
+            state.color = value;
+            document.getElementById('colorPicker').value = value;
+            document.getElementById('colorHex').value = value;
+        }
+
+        function updateBrushSize(value) {
+            state.brushSize = parseInt(value);
+            document.getElementById('brushSizeValue').textContent = value;
+        }
+
+        // Zoom
+        function zoomIn() {
+            state.zoom = Math.min(5, state.zoom + 0.1);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            state.zoom = Math.max(0.1, state.zoom - 0.1);
+            updateZoom();
+        }
+
+        function resetZoom() {
+            state.zoom = 1;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            document.getElementById('canvasWrapper').style.transform = `scale(${state.zoom})`;
+            document.getElementById('zoomDisplay').textContent = Math.round(state.zoom * 100) + '%';
+        }
+
+        // Layers
+        function addLayer() {
+            const newLayer = {
+                id: `layer-${Date.now()}`,
+                name: `Layer ${state.layers.length + 1}`,
+                visible: true,
+                opacity: 100,
+                blendMode: 'normal'
+            };
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = state.canvasSize.width;
+            canvas.height = state.canvasSize.height;
+            state.layerCanvases[newLayer.id] = canvas;
+            
+            state.layers.push(newLayer);
+            state.selectedLayerId = newLayer.id;
+            updateLayersList();
+        }
+
+        function deleteLayer() {
+            if (state.layers.length <= 1) return;
+            
+            state.layers = state.layers.filter(l => l.id !== state.selectedLayerId);
+            delete state.layerCanvases[state.selectedLayerId];
+            state.selectedLayerId = state.layers[0].id;
+            updateLayersList();
+            renderLayers();
+        }
+
+        function selectLayer(layerId) {
+            state.selectedLayerId = layerId;
+            updateLayersList();
+        }
+
+        function toggleLayerVisibility(layerId) {
+            const layer = state.layers.find(l => l.id === layerId);
+            if (layer) {
+                layer.visible = !layer.visible;
+                updateLayersList();
+                renderLayers();
+            }
+        }
+
+        function updateLayersList() {
+            const list = document.getElementById('layersList');
+            list.innerHTML = '';
+            
+            [...state.layers].reverse().forEach(layer => {
+                const item = document.createElement('div');
+                item.className = `layer-item ${layer.id === state.selectedLayerId ? 'active' : ''}`;
+                item.onclick = () => selectLayer(layer.id);
+                
+                item.innerHTML = `
+                    <div class="layer-header">
+                        <span class="layer-name">${layer.name}</span>
+                        <button class="icon-btn" onclick="event.stopPropagation(); toggleLayerVisibility('${layer.id}')" style="width: 24px; height: 24px;">
+                            ${layer.visible ? '👁' : '🚫'}
+                        </button>
+                    </div>
+                    ${layer.id === state.selectedLayerId ? `
+                        <div class="layer-details">
+                            <label class="property-label">Opacity: ${layer.opacity}%</label>
+                        </div>
+                    ` : ''}
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+
+        // Canvas Management
+        function showNewCanvasModal() {
+            const menu = document.createElement('div');
+            menu.style.cssText = 'position: absolute; top: 56px; left: 16px; background: #2d2d2d; border: 1px solid #3d3d3d; border-radius: 6px; padding: 4px; z-index: 100;';
+            menu.innerHTML = `
+                <button class="menu-btn" onclick="document.getElementById('newCanvasModal').classList.add('show'); this.parentElement.remove();" style="display: block; width: 100%; text-align: left;">New...</button>
+                <button class="menu-btn" onclick="document.getElementById('fileInput').click(); this.parentElement.remove();" style="display: block; width: 100%; text-align: left;">Open...</button>
+                <div style="height: 1px; background: #3d3d3d; margin: 4px 0;"></div>
+                <button class="menu-btn" onclick="exportCanvas('png'); this.parentElement.remove();" style="display: block; width: 100%; text-align: left;">Export as PNG</button>
+                <button class="menu-btn" onclick="exportCanvas('jpeg'); this.parentElement.remove();" style="display: block; width: 100%; text-align: left;">Export as JPG</button>
+            `;
+            document.body.appendChild(menu);
+            
+            setTimeout(() => {
+                document.addEventListener('click', function handler(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', handler);
+                    }
+                });
+            }, 0);
+        }
+
+        function setPresetSize(width, height) {
+            document.getElementById('canvasWidth').value = width;
+            document.getElementById('canvasHeight').value = height;
+        }
+
+        function createNewCanvas() {
+            const width = parseInt(document.getElementById('canvasWidth').value);
+            const height = parseInt(document.getElementById('canvasHeight').value);
+            
+            state.canvasSize = { width, height };
+            mainCanvas.width = width;
+            mainCanvas.height = height;
+            
+            // Resize all layer canvases
+            Object.values(state.layerCanvases).forEach(canvas => {
+                canvas.width = width;
+                canvas.height = height;
+            });
+            
+            renderLayers();
+            document.getElementById('newCanvasModal').classList.remove('show');
+        }
+
+        function openImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    state.canvasSize = { width: img.width, height: img.height };
+                    mainCanvas.width = img.width;
+                    mainCanvas.height = img.height;
+                    
+                    const layerCanvas = state.layerCanvases[state.selectedLayerId];
+                    if (layerCanvas) {
+                        layerCanvas.width = img.width;
+                        layerCanvas.height = img.height;
+                        const ctx = layerCanvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        renderLayers();
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function exportCanvas(format) {
+            const link = document.createElement('a');
+            link.download = `photoshop-clone.${format}`;
+            link.href = mainCanvas.toDataURL(`image/${format}`);
+            link.click();
+        }
+
+        function showFilterMenu() {
+            const menu = document.createElement('div');
+            menu.style.cssText = 'position: absolute; top: 56px; left: 140px; background: #2d2d2d; border: 1px solid #3d3d3d; border-radius: 6px; padding: 4px; z-index: 100;';
+            menu.innerHTML = `
+                <button class="menu-btn" onclick="applyFilter('grayscale'); this.parentElement.remove();" style="display: block; width: 100%; text-align: left;">Grayscale</button>
+                <button class="menu-btn" onclick="applyFilter('invert'); this.parentElement.remove();" style="display: block; width: 100%; text-align: left;">Invert Colors</button>
+                <button class="menu-btn" onclick="applyFilter('brightness'); this.parentElement.remove();" style="display: block; width: 100%; text-align: left;">Increase Brightness</button>
+            `;
+            document.body.appendChild(menu);
+            
+            setTimeout(() => {
+                document.addEventListener('click', function handler(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', handler);
+                    }
+                });
+            }, 0);
+        }
+
+        function applyFilter(filterType) {
+            const imageData = mainCtx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+            const data = imageData.data;
+
+            switch(filterType) {
+                case 'grayscale':
+                    for (let i = 0; i < data.length; i += 4) {
+                        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                        data[i] = data[i + 1] = data[i + 2] = gray;
+                    }
+                    break;
+                case 'invert':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i];
+                        data[i + 1] = 255 - data[i + 1];
+                        data[i + 2] = 255 - data[i + 2];
+                    }
+                    break;
+                case 'brightness':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.min(255, data[i] + 30);
+                        data[i + 1] = Math.min(255, data[i + 1] + 30);
+                        data[i + 2] = Math.min(255, data[i + 2] + 30);
+                    }
+                    break;
+            }
+
+            mainCtx.putImageData(imageData, 0, 0);
+        }
+
+        // Undo/Redo (placeholder)
+        function undo() {}
+        function redo() {}
+
+        // Close modal on background click
+        document.getElementById('newCanvasModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>
