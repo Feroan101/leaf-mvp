@@ -23,26 +23,26 @@
         }
 
        body {
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
-    url("loader.gif") center center no-repeat fixed;
-  background-size: cover;
-}
+        background:
+            linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+            url("loader.gif") center center no-repeat fixed;
+        background-size: cover;
+        }
 
-/* brighter gif on top, initially hidden */
-.gif-highlight {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at center,
-      rgba(255, 255, 255, 0.35) 0,
-      rgba(255, 255, 255, 0) 300px),
-    url("loader.gif") center center no-repeat fixed;
-  background-size: cover;
-  opacity: 0;
-  transition: opacity 0.2s ease-out;
-}
+        /* brighter gif on top, initially hidden */
+        .gif-highlight {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at center,
+                rgba(255, 255, 255, 0.18) 0,
+                rgba(255, 255, 255, 0) 300px),
+                url("loader.gif") center center no-repeat fixed;
+            background-size: cover;
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+        }
 
 
         /* Enhanced Navigation Bar */
@@ -526,9 +526,205 @@
             .navbar-search { width: 200px; }
             .files-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
         }
+
+.stats-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid #2a2a2a;
+  padding: 3px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stats-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex: 1; /* fills remaining space after the log button */
+}
+
+.stats-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.stats-brand .brand-prefix {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 9px;
+  color: #6b7280;
+}
+
+.brand-logo {
+  height: 10px;        /* tweak as needed */
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.7));
+}
+
+
+.stats-brand .brand-name {
+  font-weight: 700;
+  font-size: 11px;
+  color: #e5e7eb;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 0% 0%, #4f46e5, #0f172a);
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.6);
+}
+
+/* log button stays the same */
+.log-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.log-btn i {
+  font-size: 13px;
+}
+
+.log-btn:hover {
+  background: rgba(30, 64, 175, 0.95);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+
+/* log popup */
+.log-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 56px; /* just above the bar */
+  width: 260px;
+  max-height: 260px;
+  padding: 10px 10px 8px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+  font-size: 11px;
+  display: none;
+  z-index: 60;
+}
+
+.log-panel.open {
+  display: flex;
+  flex-direction: column;
+}
+
+.log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.log-close {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+.log-body {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.log-item {
+  display: flex;
+  gap: 8px;
+  padding: 4px 2px;
+  border-radius: 6px;
+}
+
+.log-item:hover {
+  background: rgba(30, 64, 175, 0.22);
+}
+
+.log-time {
+  color: #9ca3af;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  min-width: 48px;
+}
+
+.log-text {
+  color: #e5e7eb;
+  flex: 1;
+}
+
+
+.sys-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.sys-item i {
+  font-size: 9px;
+  color: #9ca3ff;
+}
+
+.sys-item .label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: 9px;
+  color: #6b7280;
+}
+
+.sys-item .value {
+  font-size: 9px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.server-health.server-ok .value {
+  color: #4ade80;
+}
+
+.server-health.server-bad .value {
+  color: #f87171;
+}
+
     </style>
     <link rel="stylesheet" href="side-bar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/akar-icons-fonts/1.1.9/css/akar-icons.min.css"/>
+    <link rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <link rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/uicons-thin-straight/css/uicons-thin-straight.css">
+
 
 </head>
 <body>
@@ -539,7 +735,7 @@
         <div class="navbar-left">
             <div class="navbar-logo">
                 <i class="fas fa-folder-open"></i>
-                FileHub Pro
+                Leaf Singularity
                 <span class="navbar-version">v2.1 Pro</span>
             </div>
             <div class="navbar-menu">
@@ -673,13 +869,13 @@
                     <button class="drop-zone-button" onclick="document.getElementById('fileInput').click()">
                         <i class="fas fa-folder-open"></i> Browse Files
                     </button>
-                </div> -->
+                </div> 
             <div class="drop-zone" id="dropZone"></div>
 
             <!-- Files Grid -->
-            <div class="files-grid active" id="filesGrid"></div>
+            <div class="files-grid " id="filesGrid"></div> 
 
-            <!-- Enhanced Stats Bar -->
+            <!-- Enhanced Stats Bar 
             <div class="stats-bar">
                 <div class="stat-item">
                     <span class="stat-label">Total Files</span>
@@ -707,25 +903,91 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Hidden File Input -->
-    <input type="file" id="fileInput" multiple webkitdirectory onchange="handleFiles(this.files)">
-<script>
-  document.addEventListener("mousemove", (e) => {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const dx = (e.clientX - w / 2);
-    const dy = (e.clientY - h / 2);
-    const dist = Math.hypot(dx, dy);
+<div class="stats-bar">
+  <button class="log-btn" onclick="toggleLogPanel()">
+    <i class="fi fi-rr-time-past"></i>
+    <span>Log</span>
+  </button>
 
-    const max = Math.min(w, h) / 3; // radius in which it brightens
-    let t = 1 - dist / max;
-    t = Math.max(0, Math.min(1, t)); // clamp 0–1
+  <div class="stats-left">
+    <div class="sys-item">
+      <i class="fi fi-rr-database"></i>
+      <span class="label">Memory</span>
+      <span class="value">12.3 GB / 32 GB</span>
+    </div>
 
-    document.querySelector(".gif-highlight").style.opacity = t;
-  });
-</script>
+    <div class="sys-item">
+      <i class="fi fi-rr-disk"></i>
+      <span class="label">ROM</span>
+      <span class="value">512 GB / 1 TB</span>
+    </div>
+
+    <div class="sys-item">
+      <i class="fi fi-ts-cpu"></i>
+      <span class="label">CPU</span>
+      <span class="value">42%</span>
+    </div>
+
+    <div class="sys-item server-health server-ok">
+      <i class="fi fi-rr-shield-check"></i>
+      <span class="label">Server</span>
+      <span class="value">Healthy</span>
+    </div>
+
+    <div class="sys-item">
+      <i class="fi fi-rr-dashboard"></i>
+      <span class="label">Latency</span>
+      <span class="value">24 ms</span>
+    </div>
+  </div>
+  <div class="stats-brand">
+  <span class="brand-prefix">A product of</span>
+  <img src="enmero-logo.png" alt="Enmero" class="brand-logo">
+</div>
+</div>
+
+<!-- history popup (unchanged) -->
+<div class="log-panel" id="logPanel">
+  <div class="log-header">
+    <span>Activity Log</span>
+    <button class="log-close" onclick="toggleLogPanel()">&times;</button>
+  </div>
+  <div class="log-body">
+    <div class="log-item">
+      <span class="log-time">00:58</span>
+      <span class="log-text">Uploaded 12 files</span>
+    </div>
+    <div class="log-item">
+      <span class="log-time">00:52</span>
+      <span class="log-text">Scanned downloads folder</span>
+    </div>
+    <div class="log-item">
+      <span class="log-time">00:45</span>
+      <span class="log-text">Cleared all files</span>
+    </div>
+  </div>
+</div>
+
+
+    <script>
+    document.addEventListener("mousemove", (e) => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const dx = (e.clientX - w / 2);
+        const dy = (e.clientY - h / 2);
+        const dist = Math.hypot(dx, dy);
+
+        const max = Math.min(w, h) / 3; // radius in which it brightens
+        let t = 1 - dist / max;
+        t = Math.max(0, Math.min(1, t));
+        const maxOpacity = 0.3;          // was effectively 1
+        document.querySelector(".gif-highlight").style.opacity = t * maxOpacity;
+
+    });
+    </script>
 
 
 
