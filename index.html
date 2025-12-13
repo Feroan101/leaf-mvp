@@ -272,11 +272,12 @@
 
         /* Main Content */
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+    position: relative !important;
+    flex: 1 !important;
+    overflow: hidden !important;
+    height: calc(100vh - 136px) !important; /* Navbar 56px + Stats 80px */
+}
+
 
         .content-header {
             padding: 32px;
@@ -308,90 +309,79 @@
             gap: 12px;
         }
 
-        /* Enhanced Drop Zone 
-        .drop-zone {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 32px;
-            border: 2px dashed rgba(42, 42, 42, 0.5);
-            border-radius: 16px;
-            transition: all 0.3s;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.02);
-            position: relative;
-            overflow: hidden;
-        }
+       /* SUBTLE MIDDLE OVERLAY */
+.overlay-drop-zone {
+    position: absolute !important;
+    top: 0 !important;           /* Full top to bottom */
+    left: 0 !important;          /* Full left to right */
+    right: 0 !important;
+    bottom: 0 !important;        /* Full height */
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: all;
+    z-index: 100;
+    opacity: 0;
+    transition: all 0.3s ease;
+    border-radius: 0 !important; /* No rounded corners */
+}
 
-        .drop-zone::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-            transition: left 0.5s;
-        }
 
-        .drop-zone:hover::before {
-            left: 100%;
-        }
+.overlay-drop-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(79,70,229,0.08) 0%, transparent 70%);
+    border-radius: 12px;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
 
-        .drop-zone:hover {
-            border-color: rgba(79, 70, 229, 0.5);
-            background: rgba(79, 70, 229, 0.03);
-        }
+.overlay-drop-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255,255,255,0.3);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
 
-        .drop-zone.dragover {
-            border-color: #4f46e5;
-            background: rgba(79, 70, 229, 0.1);
-            transform: scale(1.02);
-        }
+.overlay-drop-zone:hover,
+.overlay-drop-zone.dragover {
+    opacity: 1;
+}
 
-        .drop-zone-content {
-            text-align: center;
-            pointer-events: none;
-        }
+.overlay-drop-zone.dragover .overlay-drop-glow {
+    opacity: 1;
+    background: radial-gradient(circle at center, rgba(79,70,229,0.15) 0%, transparent 70%);
+}
 
-        .drop-zone-icon {
-            font-size: 64px;
-            margin-bottom: 24px;
-            opacity: 0.7;
-            color: #4f46e5;
-        }
+.overlay-drop-zone.dragover .overlay-drop-hint {
+    opacity: 1;
+    color: rgba(255,255,255,0.9);
+}
 
-        .drop-zone-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #e0e0e0;
-            margin-bottom: 12px;
-        }
 
-        .drop-zone-subtitle {
-            font-size: 15px;
-            color: #888;
-            margin-bottom: 24px;
-        }
+/* HOVER STATES */
+.overlay-drop-zone:hover,
+.overlay-drop-zone.dragover {
+    opacity: 1;
+}
 
-        .drop-zone-button {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
+.overlay-drop-zone.dragover .overlay-drop-glow {
+    opacity: 1;
+    background: radial-gradient(circle at center, rgba(79,70,229,0.15) 0%, rgba(124,58,237,0.08) 50%, transparent 70%);
+}
 
-        .drop-zone-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
-        } */
+.overlay-drop-zone.dragover .overlay-drop-hint {
+    opacity: 1;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 2px 10px rgba(79,70,229,0.5);
+}
+
 
         /* Files Grid */
         .files-grid {
@@ -783,16 +773,69 @@
   object-fit: cover;
 }
 
+/* Full-screen overlay container (initially off) */
+.stripe-transition {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 300;
+}
+
+/* white angled bands */
+.menu-bg {
+  position: absolute;
+  display: block;
+  width: 200%;
+  left: -53%;
+  top: -25%;
+  height: 40%;
+  background-color: rgba(255, 255, 255, 1);
+}
+
+/* middle band starts collapsed, scales open */
+.menu-bg.middle {
+  top: 29%;
+  left: -53%;
+  transform: rotate(-45deg) scaleY(0);
+  transform-origin: center;
+}
+
+/* top band starts above viewport */
+.menu-bg.top {
+  left: -34%;
+  top: 0;
+  transform: rotate(-45deg) translateY(-152%);
+}
+
+/* bottom band starts below viewport */
+.menu-bg.bottom {
+  top: 105%;
+  left: -20%;
+  transform: rotate(-45deg) translateY(25%);
+}
+
+.file-card-category.backend {
+    background: linear-gradient(90deg, rgba(79, 70, 229, 0.2), rgba(124, 58, 237, 0.2));
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 700;
+}
 
     </style>
     <link rel="stylesheet" href="side-bar.css">
     <link rel="stylesheet" href="trans.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/akar-icons-fonts/1.1.9/css/akar-icons.min.css"/>
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-thin-straight/css/uicons-thin-straight.css">
 
 </head>
 <body>
+     <!-- HIDDEN FILE INPUT - MUST BE FIRST -->
+    <input type="file" id="fileInput" multiple style="display: none;">
+    
     <div class="gif-highlight"></div>
 
     <!-- Advanced Navigation Bar -->
@@ -822,10 +865,10 @@
 
             <div class="user-menu" id="userMenu">
             <div class="user-menu-header">
-                <div class="user-avatar">RH</div>
+                <div class="user-avatar">CP</div>
                 <div class="user-menu-info">
-                <span class="user-menu-name">Ravi</span>
-                <span class="user-menu-email">ravi@example.com</span>
+                <span class="user-menu-name">charlie Puth</span>
+                <span class="user-menu-email">charlie@example.com</span>
                 </div>
             </div>
             <div class="user-menu-item">Profile</div>
@@ -845,7 +888,7 @@
             <div class="sidebar-section">
                 <ul>
                     <li>
-                        <a href="#">
+                        <a href="#" onclick="runStripeTransition(); return false;">
                             <i class="ai-home"></i>
                             <span>Dashboard</span>
                         </a>
@@ -895,34 +938,19 @@
                 </ul>
                 </div>
              </div>
+              <div class="main-content" style="position: relative;">
+                <!-- YOUR OVERLAY GOES HERE -->
+                <div class="overlay-drop-zone" id="overlayDropZone">
+                    <div class="overlay-drop-glow"></div>
+                    <div class="overlay-drop-hint" id="dropHint">Drop files anywhere </div>
+                </div>
+                
+                <!-- Files Grid -->
+                <div class="files-grid" id="filesGrid"></div>
+            </div>
         </div>
 
-        <!-- Main Content Area 
-        <div class="main-content">
-            <div class="content-header">
-                <div class="content-title-section">
-                    <div class="content-title">Advanced File Organizer</div>
-                    <div class="content-subtitle">Drag & drop files for automatic categorization with AI-powered analysis</div>
-                </div>
-                <div class="content-actions">
-                    <button class="navbar-btn" onclick="toggleAdvancedOptions()">Advanced Options</button>
-                    <button class="navbar-btn primary" onclick="scanDrive()">Scan Drive</button>
-                </div>
-            </div> -->
-
-            <!-- Drop Zone
-                <div class="drop-zone-content">
-                    <div class="drop-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                    <div class="drop-zone-title">Drop your files here</div>
-                    <div class="drop-zone-subtitle">Supports 500+ file types • Drag folders too • Auto-categorization</div>
-                    <button class="drop-zone-button" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-folder-open"></i> Browse Files
-                    </button>
-                </div> 
-            <div class="drop-zone" id="dropZone"></div>
-
-            <!-- Files Grid -->
-            <div class="files-grid " id="filesGrid"></div> 
+ 
 
             <!-- Enhanced Stats Bar 
             <div class="stats-bar">
@@ -956,6 +984,11 @@
 
     <!-- Hidden File Input -->
 <div class="stats-bar">
+    <!-- Add to .stats-bar or .drop-zone-actions -->
+<button onclick="analyzeWithBackend(uploadedFiles.map(f => new File([], f.name, {type: f.type})))" title="Deep Backend Analysis">
+    <i class="fas fa-brain"></i>
+</button>
+
   <button class="log-btn" onclick="toggleLogPanel()">
     <i class="fi fi-rr-time-past"></i>
     <span></span>
@@ -1034,6 +1067,13 @@
 </div>
 
 
+<!-- Full-screen stripe transition overlay -->
+<div class="stripe-transition" id="stripeTransition">
+  <i class="menu-bg top"></i>
+  <i class="menu-bg middle"></i>
+  <i class="menu-bg bottom"></i>
+</div>
+
 
     <script>
     document.addEventListener("mousemove", (e) => {
@@ -1062,233 +1102,253 @@
     </script>
 
     <script>
-        // Enhanced file categories with more extensions
-        const fileCategories = {
-            documents: ['pdf','doc','docx','txt','rtf','odt','pages','wpd','tex','md','markdown'],
-            images: ['jpg','jpeg','png','gif','bmp','svg','webp','ico','tiff','tif','heic','raw','cr2','nef'],
-            videos: ['mp4','avi','mov','mkv','flv','wmv','webm','mpg','mpeg','m4v','3gp','ogv'],
-            audio: ['mp3','wav','aac','flac','ogg','m4a','wma','aiff','alac','dsf','ape'],
-            code: ['js','py','html','css','java','cpp','c','h','hpp','rb','php','ts','jsx','tsx','vue','svelte','go','rs','swift','kt','dart','lua','sh','bat'],
-            data: ['csv','json','xml','yaml','yml','sql','sqlite','db','xlsx','xls','ods','parquet','avro','orc'],
-            archives: ['zip','rar','7z','tar','gz','bz2','xz','iso','dmg','cab','zipx']
-        };
+  var menuTop = $('.menu-bg.top');
+  var menuMiddle = $('.menu-bg.middle');
+  var menuBottom = $('.menu-bg.bottom');
 
-        let uploadedFiles = [];
-        let currentFilter = 'all';
-        let searchTerm = '';
+  var tlStripe = new TimelineMax({ paused: true });
 
-        // Get FontAwesome icon for category
-        function getCategoryIcon(category) {
-            const icons = {
-                documents: 'fas fa-file-alt',
-                images: 'fas fa-image',
-                videos: 'fas fa-video',
-                audio: 'fas fa-music',
-                code: 'fas fa-code',
-                data: 'fas fa-database',
-                archives: 'fas fa-file-archive',
-                other: 'fas fa-file'
+ tlStripe
+  .add("open")
+  .fromTo(menuTop, 0.8,
+    { yPercent: -230 },
+    { yPercent: 20, ease: Power4.easeInOut },     // more into view
+    "open"
+  )
+  .fromTo(menuMiddle, 0.8,
+    { scaleY: 0 },
+    { scaleY: 3.4, ease: Power4.easeInOut },      // slightly thicker
+    "open"
+  )
+  .fromTo(menuBottom, 0.8,
+    { yPercent: 90 },
+    { yPercent: -130, ease: Power4.easeInOut },   // more into view
+    "open"
+  )
+  .add("close", "+=0.2")
+  .to(menuTop, 0.8, { yPercent: -230, ease: Power4.easeInOut }, "close")
+  .to(menuMiddle, 0.8, { scaleY: 0, ease: Power4.easeInOut }, "close")
+  .to(menuBottom, 0.8, { yPercent: 90, ease: Power4.easeInOut }, "close");
+
+
+  function runStripeTransition() {
+    if (tlStripe.isActive()) return;
+    tlStripe.restart();
+  }
+</script>
+
+    <script>
+       // NEW SUBTLE OVERLAY (add this)
+const overlayDropZone = document.getElementById('overlayDropZone');
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    overlayDropZone.addEventListener(eventName, preventDefaults, false);
+});
+['dragenter', 'dragover'].forEach(eventName => {
+    overlayDropZone.addEventListener(eventName, () => overlayDropZone.classList.add('dragover'), false);
+});
+['dragleave', 'drop'].forEach(eventName => {
+    overlayDropZone.addEventListener(eventName, () => overlayDropZone.classList.remove('dragover'), false);
+});
+overlayDropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    handleFiles(files);
+});
+overlayDropZone.addEventListener('click', () => document.getElementById('fileInput').click());
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+
+    </script>
+
+    <script>
+      const BACKEND_URL = 'http://localhost:5000'; 
+      let uploadedFiles = [];  // GLOBAL FILE ARRAY
+      let currentFilter = 'all';
+      let searchTerm = '';
+
+
+      function categorizeFile(filename) {
+    const extension = filename.split('.').pop().toLowerCase();
+    const fileCategories = {
+        documents: ['pdf','doc','docx','txt','rtf','odt','pages','wpd','tex','md'],
+        images: ['jpg','jpeg','png','gif','bmp','svg','webp','ico','tiff','tif'],
+        videos: ['mp4','avi','mov','mkv','flv','wmv','webm','mpg','m4v'],
+        audio: ['mp3','wav','aac','flac','ogg','m4a'],
+        code: ['js','py','html','css','java','cpp','c','go','php','sh'],
+        archives: ['zip','rar','7z','tar','gz']
+    };
+    
+    for (const [category, extensions] of Object.entries(fileCategories)) {
+        if (extensions.includes(extension)) return category;
+    }
+    return 'other';
+}
+
+
+      function addLogEntry(message) {
+    const logBody = document.querySelector('.log-body');
+    if (!logBody) return;  // Safety check
+    
+    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const logItem = document.createElement('div');
+    logItem.className = 'log-item';
+    logItem.innerHTML = `<span class="log-time">${time}</span><span class="log-text">${message}</span>`;
+    
+    logBody.insertBefore(logItem, logBody.firstChild);
+    
+    // Keep only last 10 logs
+    while (logBody.children.length > 10) {
+        logBody.removeChild(logBody.lastChild);
+    }
+    
+    // Auto-open log panel
+    const logPanel = document.getElementById('logPanel');
+    if (logPanel) logPanel.classList.add('open');
+}
+
+      async function handleFiles(files) {
+    Array.from(files).forEach(async (file) => {
+        if (file.type || file.name) {
+            const category = categorizeFile(file.name);
+            const fileInfo = {
+                id: Date.now() + Math.random(),
+                name: file.name,
+                size: file.size,
+                category: category,
+                type: file.type || 'unknown',
+                timestamp: new Date().toISOString()
             };
-            return icons[category] || 'fas fa-file';
-        }
-
-        // Enhanced drag and drop
-        const dropZone = document.getElementById('dropZone');
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            dropZone.classList.add('dragover');
-        }
-
-        function unhighlight(e) {
-            dropZone.classList.remove('dragover');
-        }
-
-        dropZone.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        dropZone.addEventListener('click', () => {
-            document.getElementById('fileInput').click();
-        });
-
-        // Categorize file
-        function categorizeFile(filename) {
-            const extension = filename.split('.').pop().toLowerCase();
-            for (const [category, extensions] of Object.entries(fileCategories)) {
-                if (extensions.includes(extension)) return category;
+            
+            uploadedFiles.push(fileInfo);
+            
+            // 🚀 SEND TO PYTHON BACKEND
+            try {
+                const response = await fetch(`${BACKEND_URL}/identify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: [fileInfo] })
+                });
+                const backendData = await response.json();
+                
+                // Update with backend-validated data
+                const validated = backendData.validated_files[0];
+                fileInfo.backend_type = validated.browser_type;
+                fileInfo.mime_type = validated.mime_type;
+                fileInfo.detection_method = 'backend_validated';
+                
+                console.log('✅ Backend validated:', validated);
+                addLogEntry(`Analyzed: ${file.name} (${validated.extension})`);
+            } catch (error) {
+                console.warn('Backend unavailable, using frontend detection');
+                addLogEntry(`Detected: ${file.name} (${category})`);
             }
-            return 'other';
-        }
-
-        // Handle files
-        function handleFiles(files) {
-            Array.from(files).forEach(file => {
-                if (file.type || file.name) {
-                    const category = categorizeFile(file.name);
-                    uploadedFiles.push({
-                        id: Date.now() + Math.random(),
-                        name: file.name,
-                        size: file.size,
-                        category: category,
-                        type: file.type || 'unknown',
-                        timestamp: new Date().toISOString()
-                    });
-                }
-            });
+            
             renderFiles();
             updateStats();
-            updateCategoryCounts();
         }
+    });
+}
 
-        // Render files with search and filter
-        function renderFiles() {
-            const grid = document.getElementById('filesGrid');
-            const dropZone = document.getElementById('dropZone');
+function getCategoryIcon(category) {
+    const icons = {
+        documents: 'fas fa-file-alt',
+        images: 'fas fa-image', 
+        videos: 'fas fa-video',
+        audio: 'fas fa-music',
+        code: 'fas fa-code',
+        archives: 'fas fa-file-archive',
+        other: 'fas fa-file'
+    };
+    return icons[category] || 'fas fa-file';
+}
 
-            if (uploadedFiles.length === 0) {
-                grid.style.display = 'none';
-                dropZone.style.display = 'flex';
-                return;
+function updateStats() {
+    const totalFiles = uploadedFiles.length;
+    const totalSize = uploadedFiles.reduce((sum, f) => sum + f.size, 0);
+    const totalMB = (totalSize / 1024 / 1024).toFixed(1);
+    const avgSizeKB = totalFiles ? (totalSize / totalFiles / 1024).toFixed(1) : 0;
+    
+    const counts = {};
+    uploadedFiles.forEach(f => {
+        counts[f.category] = (counts[f.category] || 0) + 1;
+    });
+    
+    const statsMsg = `📊 STATS: ${totalFiles} files | ${totalMB} MB | ${Object.entries(counts).map(([cat, count]) => `${cat}: ${count}`).join(', ')}`;
+    addLogEntry(statsMsg);
+}
+
+
+function renderFiles() {
+    const grid = document.getElementById('filesGrid');
+    
+    if (uploadedFiles.length === 0) {
+        grid.style.display = 'none';
+        return;
+    }
+    
+    grid.style.display = 'grid';
+    
+    let filteredFiles = uploadedFiles.filter(file => {
+        const matchesFilter = currentFilter === 'all' || file.category === currentFilter;
+        const matchesSearch = !searchTerm || file.name.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesFilter && matchesSearch;
+    });
+    
+    grid.innerHTML = filteredFiles.map(file => {
+        const size = (file.size / 1024).toFixed(1);
+        const iconClass = getCategoryIcon(file.category);
+        
+        return `
+            <div class="file-card" onclick="openFile(${file.id})">
+                <i class="${iconClass} file-card-icon"></i>
+                <div class="file-card-name">${file.name}</div>
+                <div class="file-card-size">${size} KB</div>
+                <div class="file-card-category ${file.detection_method === 'backend_validated' ? 'backend' : ''}">
+                    <i class="${iconClass}" style="font-size: 10px"></i>
+                    ${file.category.toUpperCase()}
+                    ${file.detection_method === 'backend_validated' ? '<span style="font-size: 8px; opacity: 0.7">🔍</span>' : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+
+
+async function analyzeWithBackend(files) {
+    const formData = new FormData();
+    Array.from(files).forEach(file => formData.append('files', file));
+    
+    try {
+        const response = await fetch(`${BACKEND_URL}/analyze`, {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        
+        // Update UI with deep analysis results
+        result.files.forEach(backendFile => {
+            const uiFile = uploadedFiles.find(f => f.name === backendFile.filename);
+            if (uiFile) {
+                uiFile.filetype = backendFile.filetype;
+                uiFile.category = backendFile.category;
+                uiFile.mime_type = backendFile.mime_type;
+                uiFile.detection_method = backendFile.detection_method;
             }
-
-            dropZone.style.display = 'none';
-            grid.style.display = 'grid';
-
-            let filteredFiles = uploadedFiles.filter(file => {
-                const matchesFilter = currentFilter === 'all' || file.category === currentFilter;
-                const matchesSearch = !searchTerm || file.name.toLowerCase().includes(searchTerm.toLowerCase());
-                return matchesFilter && matchesSearch;
-            });
-
-            grid.innerHTML = filteredFiles.map(file => {
-                const size = (file.size / 1024).toFixed(1);
-                const iconClass = getCategoryIcon(file.category);
-                return `
-                    <div class="file-card" onclick="openFile('${file.id}')">
-                        <i class="${iconClass} file-card-icon"></i>
-                        <div class="file-card-name">${file.name}</div>
-                        <div class="file-card-size">${size} KB</div>
-                        <div class="file-card-category">
-                            <i class="${iconClass}" style="font-size: 10px;"></i>
-                            ${file.category.toUpperCase()}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Filter functions
-        function filterCategory(category) {
-            currentFilter = category;
-            document.querySelectorAll('.category-item').forEach((item, index) => {
-                item.classList.toggle('active', index === 0 && category === 'all' || category === item.textContent.trim().split(' ')[0].toLowerCase());
-            });
-            renderFiles();
-        }
-
-        function filterFiles() {
-            searchTerm = document.getElementById('searchInput').value;
-            renderFiles();
-        }
-
-        // Update stats and counts
-        function updateStats() {
-            const totalFiles = uploadedFiles.length;
-            const totalSize = uploadedFiles.reduce((sum, f) => sum + f.size, 0);
-            const totalMB = (totalSize / (1024 * 1024)).toFixed(1);
-            const avgSize = totalFiles ? (totalSize / totalFiles / 1024).toFixed(1) : 0;
-
-            const counts = {};
-            Object.values(fileCategories).flat().forEach(cat => counts[cat] = 0);
-            uploadedFiles.forEach(f => {
-                if (f.category in counts) counts[f.category]++;
-            });
-
-            document.getElementById('totalFiles').textContent = totalFiles;
-            document.getElementById('totalSize').textContent = totalMB + ' MB';
-            document.getElementById('docCount').textContent = counts.documents || 0;
-            document.getElementById('imgCount').textContent = counts.images || 0;
-            document.getElementById('vidCount').textContent = counts.videos || 0;
-            document.getElementById('avgSize').textContent = avgSize + ' KB';
-        }
-
-        function updateCategoryCounts() {
-            const counts = {};
-            uploadedFiles.forEach(f => {
-                counts[f.category] = (counts[f.category] || 0) + 1;
-            });
-            document.querySelectorAll('.category-item span:last-child').forEach(span => {
-                const category = span.previousElementSibling.textContent.trim().split(' ')[0].toLowerCase();
-                span.textContent = `(${counts[category] || 0})`;
-            });
-        }
-
-        // Utility functions
-        function clearAllFiles() {
-            if (confirm('Clear all files? This cannot be undone.')) {
-                uploadedFiles = [];
-                renderFiles();
-                updateStats();
-                updateCategoryCounts();
-            }
-        }
-
-        function exportFiles() {
-            if (!uploadedFiles.length) return alert('No files to export');
-            const csv = 'ID,Name,SizeKB,Category,Type,Timestamp\n' + 
-                uploadedFiles.map(f => `${f.id},"${f.name}",${(f.size/1024).toFixed(1)},${f.category},"${f.type}",${f.timestamp}`).join('\n');
-            downloadCSV(csv, 'file_analysis.csv');
-        }
-
-        function downloadCSV(csv, filename) {
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // Placeholder advanced functions
-        function switchView(view) {
-            console.log('Switch to:', view);
-            document.querySelectorAll('.navbar-menu-item').forEach(item => item.classList.remove('active'));
-            event.target.closest('.navbar-menu-item').classList.add('active');
-        }
-
-        function processFiles() { alert('Processing ' + uploadedFiles.length + ' files...'); }
-        function importBatch() { alert('Batch import functionality'); }
-        function scanFolder() { alert('Folder scan initiated'); }
-        function scanDrive() { alert('Full drive scan started'); }
-        function duplicateScan() { alert('Scanning for duplicates...'); }
-        function batchRename() { alert('Batch rename tool'); }
-        function toggleAdvancedOptions() { alert('Advanced options panel'); }
-        function toggleUserMenu() { alert('User menu'); }
-        function openFile(id) { alert('Opening file: ' + id); }
-
-        // Initialize
+        });
+        
+        renderFiles();
         updateStats();
+        addLogEntry(`Deep scan: ${result.stats.count} files analyzed`);
+        
+    } catch (error) {
+        console.error('Deep analysis failed:', error);
+    }
+}
+
     </script>
 </body>
 </html>
