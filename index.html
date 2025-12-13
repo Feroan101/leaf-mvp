@@ -48,190 +48,194 @@
         /* Enhanced Navigation Bar */
 
         .navbar {
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid #2a2a2a;
-            padding: 0 24px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-            width: 100%;
+        background: rgba(26, 26, 26, 0.4);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid #2a2a2a;
+        padding: 0 20px;
+        height: 56px;                    /* slightly slimmer */
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
         }
 
         .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex: 1; 
-            min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
         }
 
         .navbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #ffffff;
+        letter-spacing: -0.3px;
         }
 
-        .navbar-logo i {
-            font-size: 28px;
-            color: #4f46e5;
+        .navbar-logo-img {
+        width: 40px;
+        height: auto;
+        border-radius: 6px;
+        object-fit: contain;
         }
 
         .navbar-version {
-            font-size: 11px;
-            color: #666;
-            font-weight: 500;
-            background: rgba(79, 70, 229, 0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
+        font-size: 10px;
+        color: #9ca3af;
+        font-weight: 500;
+        background: rgba(148, 163, 184, 0.12);
+        padding: 2px 7px;
+        border-radius: 999px;
         }
 
-        .navbar-menu {
-            display: flex;
-            gap: 4px;
-            background: rgba(42, 42, 42, 0.5);
-            border-radius: 10px;
-            padding: 4px;
-            height: 36px;
+        /* top-right menu: File/Edit/View/... */
+        .navbar-right.navbar-menu-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         }
 
-        .navbar-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #aaa;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 6px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            white-space: nowrap;
+        .navbar-menu-top .menu-item {
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 6px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
         }
 
-        .navbar-menu-item:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar-menu-item.active {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-        }
-
-        .navbar-menu-item i {
-            font-size: 14px;
-            width: 16px;
+        .navbar-menu-top .menu-item:hover {
+        background: rgba(55, 65, 81, 0.85);
+        color: #e5e7eb;
         }
 
         .navbar-right {
-            display: flex;
-            gap: 12px;
-            align-items: center;
+        display: flex;
+        align-items: center;
+        gap: 16px;
         }
 
-        .navbar-search {
-            position: relative;
-            width: 280px;
+        /* existing menu styles */
+        .navbar-menu-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         }
 
-        .navbar-search input {
-            width: 100%;
-            background: rgba(42, 42, 42, 0.8);
-            border: 1px solid #333;
-            color: #e0e0e0;
-            padding: 10px 40px 10px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            transition: all 0.2s;
+        .navbar-menu-top .menu-item {
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 6px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
         }
 
-        .navbar-search input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        .navbar-menu-top .menu-item:hover {
+        background: rgba(55, 65, 81, 0.85);
+        color: #e5e7eb;
         }
 
-        .navbar-search i {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-        }
-
-        .navbar-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .navbar-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(42, 42, 42, 0.7);
-            border: none;
-            color: #e0e0e0;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .navbar-btn:hover {
-            background: rgba(58, 58, 58, 0.9);
-            color: #ffffff;
-            transform: translateY(-1px);
-        }
-
-        .navbar-btn.primary {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
-
-        .navbar-btn.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
-        }
-
+        /* sleek user block */
+        /* avatar pill in navbar */
         .navbar-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: rgba(42, 42, 42, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 8px;
+        border-radius: 999px;
+        cursor: pointer;
+        background: rgba(31, 41, 55, 0.9);
+        transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
         }
 
         .navbar-user:hover {
-            background: rgba(58, 58, 58, 0.8);
+        background: rgba(55, 65, 81, 0.95);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        transform: translateY(-1px);
         }
 
+        /* keep avatar style */
         .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
             color: white;
         }
+
+        .user-chevron {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        /* dropdown menu */
+        .user-menu {
+            position: absolute;
+            right: 20px;
+            top: 56px; /* just below navbar height */
+            width: 220px;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(18px);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            font-size: 12px;
+            display: none;
+            z-index: 70;
+        }
+
+        .user-menu.open {
+        display: block;
+        }
+
+        .user-menu-header {
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px 6px;
+            border-bottom: 1px solid rgba(55, 65, 81, 0.9);
+        }
+
+        .user-menu-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-menu-name {
+            color: #e5e7eb;
+            font-weight: 600;
+        }
+
+        .user-menu-email {
+        color: #9ca3af;
+        font-size: 11px;
+        }
+
+        .user-menu-item {
+        padding: 8px 12px;
+        color: #d1d5db;
+        cursor: pointer;
+        }
+
+        .user-menu-item:hover {
+        background: rgba(30, 64, 175, 0.25);
+        }
+
+
 
         /* Main Container */
         .container {
@@ -590,20 +594,18 @@
 .log-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 12px;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.35);
   background: rgba(15, 23, 42, 0.9);
   color: #e5e7eb;
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
   outline: none;
+  padding: 0;
   transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
-}
-
-.log-btn i {
-  font-size: 13px;
 }
 
 .log-btn:hover {
@@ -612,12 +614,15 @@
   transform: translateY(-1px);
 }
 
+.log-btn i {
+  font-size: 13px;
+}
 
-/* log popup */
+/* log panel, tied to log button hover */
 .log-panel {
   position: fixed;
   right: 20px;
-  bottom: 56px; /* just above the bar */
+  bottom: 56px;
   width: 260px;
   max-height: 260px;
   padding: 10px 10px 8px;
@@ -629,11 +634,18 @@
   font-size: 11px;
   display: none;
   z-index: 60;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
 }
 
-.log-panel.open {
+/* show panel when hovering the button OR the panel itself */
+.log-btn:hover ~ .log-panel,
+.log-panel:hover {
   display: flex;
   flex-direction: column;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .log-header {
@@ -649,7 +661,7 @@
   border: none;
   background: transparent;
   color: #9ca3af;
-  cursor: pointer;
+  cursor: default; /* no click behavior now */
   font-size: 14px;
   padding: 0 4px;
 }
@@ -680,7 +692,6 @@
   color: #e5e7eb;
   flex: 1;
 }
-
 
 .sys-item {
   display: flex;
@@ -717,14 +728,68 @@
   color: #f87171;
 }
 
+.chat-strip {
+  position: fixed;
+  right: 20px;
+  bottom: 68px; /* slightly above the status bar height */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 80;
+}
+
+/* subtle glassy input */
+.chat-input-wrap {
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(14px);
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 4px 12px;
+  max-width: 260px;
+}
+
+.chat-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 11px;
+  width: 100%;
+}
+
+.chat-input::placeholder {
+  color: #6b7280;
+}
+
+/* round avatar to the right */
+.chat-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: radial-gradient(circle at 0% 0%, #4f46e5, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+.chat-avatar img {
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
     </style>
     <link rel="stylesheet" href="side-bar.css">
+    <link rel="stylesheet" href="trans.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/akar-icons-fonts/1.1.9/css/akar-icons.min.css"/>
-    <link rel="stylesheet"
-      href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
-    <link rel="stylesheet"
-      href="https://cdn-uicons.flaticon.com/uicons-thin-straight/css/uicons-thin-straight.css">
-
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-thin-straight/css/uicons-thin-straight.css">
 
 </head>
 <body>
@@ -734,60 +799,44 @@
     <div class="navbar">
         <div class="navbar-left">
             <div class="navbar-logo">
-                <i class="fas fa-folder-open"></i>
-                Leaf Singularity
-                <span class="navbar-version">v2.1 Pro</span>
-            </div>
-            <div class="navbar-menu">
-                <a class="navbar-menu-item active" onclick="switchView('upload')">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Upload</span>
-                </a>
-                <a class="navbar-menu-item" onclick="switchView('organize')">
-                    <i class="fas fa-sitemap"></i>
-                    <span>Organize</span>
-                </a>
-                <a class="navbar-menu-item" onclick="switchView('analyze')">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Analyze</span>
-                </a>
-                <a class="navbar-menu-item" onclick="switchView('automate')">
-                    <i class="fas fa-robot"></i>
-                    <span>Automate</span>
-                </a>
-                <a class="navbar-menu-item" onclick="switchView('share')">
-                    <i class="fas fa-share-alt"></i>
-                    <span>Share</span>
-                </a>
-                <a class="navbar-menu-item" onclick="switchView('settings')">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
+            <img src="white-leaf.png" alt="leaf-logo" class="navbar-logo-img">
+            Leaf Singularity
+            <span class="navbar-version">v2.1 Pro</span>
             </div>
         </div>
+
         <div class="navbar-right">
-            <div class="navbar-search">
-                <input type="text" placeholder="Search files..." id="searchInput" oninput="filterFiles()">
-                <i class="fas fa-search"></i>
+            <div class="navbar-menu-top">
+            <button class="menu-item">File</button>
+            <button class="menu-item">Edit</button>
+            <button class="menu-item">View</button>
+            <button class="menu-item">Tools</button>
+            <button class="menu-item">Help</button>
+            <button class="menu-item">Support</button>
             </div>
-            <div class="navbar-actions">
-                <button class="navbar-btn" onclick="importBatch()" title="Batch Import">
-                    <i class="fas fa-file-import"></i>
-                </button>
-                <button class="navbar-btn" onclick="scanFolder()" title="Folder Scan">
-                    <i class="fas fa-folder-open"></i>
-                </button>
-                <button class="navbar-btn primary" onclick="processFiles()" title="Process Files">
-                    <i class="fas fa-play"></i> Process
-                </button>
-            </div>
+
             <div class="navbar-user" onclick="toggleUserMenu()" title="User Menu">
-                <div class="user-avatar">RH</div>
-                <span style="font-size: 13px; font-weight: 500;">Ravi</span>
-                <i class="fas fa-chevron-down" style="font-size: 11px;"></i>
+            <div class="user-avatar">RH</div>
+            <i class="fas fa-chevron-down user-chevron"></i>
             </div>
+
+            <div class="user-menu" id="userMenu">
+            <div class="user-menu-header">
+                <div class="user-avatar">RH</div>
+                <div class="user-menu-info">
+                <span class="user-menu-name">Ravi</span>
+                <span class="user-menu-email">ravi@example.com</span>
+                </div>
+            </div>
+            <div class="user-menu-item">Profile</div>
+            <div class="user-menu-item">Settings</div>
+            <div class="user-menu-item">Sign out</div>
+            </div>
+
         </div>
     </div>
+
+
 
     <!-- Main Container -->
     <div class="container">
@@ -909,7 +958,7 @@
 <div class="stats-bar">
   <button class="log-btn" onclick="toggleLogPanel()">
     <i class="fi fi-rr-time-past"></i>
-    <span>Log</span>
+    <span></span>
   </button>
 
   <div class="stats-left">
@@ -953,7 +1002,7 @@
 <div class="log-panel" id="logPanel">
   <div class="log-header">
     <span>Activity Log</span>
-    <button class="log-close" onclick="toggleLogPanel()">&times;</button>
+    <button class="log-close">&times;</button>
   </div>
   <div class="log-body">
     <div class="log-item">
@@ -970,6 +1019,20 @@
     </div>
   </div>
 </div>
+
+<div class="chat-strip">
+  <div class="chat-input-wrap">
+    <input
+      type="text"
+      class="chat-input"
+      placeholder="Hi, how may I assist you today?"
+    />
+  </div>
+  <button class="chat-avatar">
+    <img src="AI-ass.jpeg" alt="Assistant" />
+  </button>
+</div>
+
 
 
     <script>
@@ -989,8 +1052,14 @@
     });
     </script>
 
-
-
+    <script src="trans.js"></script>
+    <script>
+    function toggleLogPanel() {
+        const panel = document.getElementById('logPanel');
+        if (!panel) return;
+        panel.classList.toggle('open');
+    }
+    </script>
 
     <script>
         // Enhanced file categories with more extensions
