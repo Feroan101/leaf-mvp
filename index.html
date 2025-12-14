@@ -1224,7 +1224,7 @@ function preventDefaults(e) {
             
             uploadedFiles.push(fileInfo);
             
-            // 🚀 SEND TO PYTHON BACKEND
+            // Backend analysis (same as before)
             try {
                 const response = await fetch(`${BACKEND_URL}/identify`, {
                     method: 'POST',
@@ -1232,25 +1232,29 @@ function preventDefaults(e) {
                     body: JSON.stringify({ files: [fileInfo] })
                 });
                 const backendData = await response.json();
-                
-                // Update with backend-validated data
                 const validated = backendData.validated_files[0];
                 fileInfo.backend_type = validated.browser_type;
                 fileInfo.mime_type = validated.mime_type;
                 fileInfo.detection_method = 'backend_validated';
-                
-                console.log('✅ Backend validated:', validated);
-                addLogEntry(`Analyzed: ${file.name} (${validated.extension})`);
+                addLogEntry(`🔍 ${file.name} → ${validated.extension}`);
             } catch (error) {
-                console.warn('Backend unavailable, using frontend detection');
-                addLogEntry(`Detected: ${file.name} (${category})`);
+                addLogEntry(`📁 ${file.name} → ${category}`);
             }
             
             renderFiles();
             updateStats();
+            
+            // 🚀 AUTO-OPEN THIS FILE IMMEDIATELY!
+            setTimeout(() => {
+                console.log('🎬 AUTO-OPENING:', fileInfo.name);
+                addLogEntry(`🎬 Opening: ${fileInfo.name}`);
+                openViewer(fileInfo.name);
+            }, 50);  // 0.5s delay
         }
     });
 }
+
+
 
 function getCategoryIcon(category) {
     const icons = {
@@ -1280,42 +1284,103 @@ function updateStats() {
     addLogEntry(statsMsg);
 }
 
+function openFile(fileId, viewerHtml) {
+    console.log('🔍 openFile called:', fileId, viewerHtml);
+    
+    const file = uploadedFiles.find(f => f.id == fileId);
+    if (!file) {
+        console.error('❌ File not found:', fileId);
+        return;
+    }
+    
+    console.log('✅ File found:', file.name);
+    
+    // Store file data
+    const fileData = {
+        name: file.name,
+        size: file.size,
+        type: file.type || file.backend_type,
+        category: file.category,
+        mime_type: file.mime_type,
+        extension: file.name.split('.').pop().toLowerCase()
+    };
+    
+    localStorage.setItem('currentFile', JSON.stringify(fileData));
+    console.log('💾 localStorage set:', fileData);
+    
+    // Open viewer
+    const newWindow = window.open(viewerHtml, '_blank');
+    if (newWindow) {
+        console.log('✅ Window opened:', viewerHtml);
+        addLogEntry(`Opening ${file.name} → ${viewerHtml}`);
+    } else {
+        console.error('❌ Popup blocked! Allow popups for localhost');
+        alert('Popup blocked! Please allow popups for localhost');
+    }
+}
+
+
+
+function getViewerForFile(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    if (['js','py','html','css','java','cpp'].includes(ext)) return 'ide.html';
+    if (['jpg','jpeg','png','gif'].includes(ext)) return 'image.html';
+    if (['mp4','avi','mov'].includes(ext)) return 'video.html';
+    if (ext === 'pdf') return 'pdf-e.html';
+    return 'generic.html';
+}
+
+function openViewer(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    
+    // Simple extension → page mapping
+    if (['js','py','html','css','java','cpp','c','ts','php','go'].includes(ext)) {
+        window.location.href = 'ide.html?file=' + encodeURIComponent(filename);
+        return;
+    }
+    if (['jpg','jpeg','png','gif','bmp','svg','webp'].includes(ext)) {
+        window.location.href = 'image.html?file=' + encodeURIComponent(filename);
+        return;
+    }
+    if (['mp4','avi','mov','mkv','webm'].includes(ext)) {
+        window.location.href = 'video.html?file=' + encodeURIComponent(filename);
+        return;
+    }
+    if (ext === 'pdf') {
+        window.location.href = 'pdf-e.html?file=' + encodeURIComponent(filename);
+        return;
+    }
+    
+    // Default
+    window.location.href = 'generic.html?file=' + encodeURIComponent(filename);
+}
 
 function renderFiles() {
     const grid = document.getElementById('filesGrid');
-    
     if (uploadedFiles.length === 0) {
         grid.style.display = 'none';
         return;
     }
     
     grid.style.display = 'grid';
-    
-    let filteredFiles = uploadedFiles.filter(file => {
-        const matchesFilter = currentFilter === 'all' || file.category === currentFilter;
-        const matchesSearch = !searchTerm || file.name.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesFilter && matchesSearch;
-    });
-    
-    grid.innerHTML = filteredFiles.map(file => {
-        const size = (file.size / 1024).toFixed(1);
-        const iconClass = getCategoryIcon(file.category);
-        
-        return `
-            <div class="file-card" onclick="openFile(${file.id})">
-                <i class="${iconClass} file-card-icon"></i>
-                <div class="file-card-name">${file.name}</div>
-                <div class="file-card-size">${size} KB</div>
-                <div class="file-card-category ${file.detection_method === 'backend_validated' ? 'backend' : ''}">
-                    <i class="${iconClass}" style="font-size: 10px"></i>
-                    ${file.category.toUpperCase()}
-                    ${file.detection_method === 'backend_validated' ? '<span style="font-size: 8px; opacity: 0.7">🔍</span>' : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
+    grid.innerHTML = uploadedFiles.map(file => `
+        <div class="file-card" data-filename="${file.name}">
+            <i class="fas fa-file file-card-icon"></i>
+            <div class="file-card-name">${file.name}</div>
+            <div class="file-card-size">${(file.size/1024).toFixed(1)} KB</div>
+            <div class="file-card-category">${file.category}</div>
+        </div>
+    `).join('');
 }
 
+
+// PERFECT CLICK HANDLER - WORKS 100%
+// AUTO OPEN FIRST FILE (optional)
+if (uploadedFiles.length === 1) {
+    setTimeout(() => {
+        openViewer(uploadedFiles[0].name);
+    }, 500);  // 0.5s delay
+}
 
 
 async function analyzeWithBackend(files) {

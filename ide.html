@@ -1223,6 +1223,13 @@
             }
         });
     </script>
+
+      <script>
+        const file = JSON.parse(localStorage.getItem('currentFile') || '{}');
+        document.getElementById('fileInfo').innerHTML = `
+            <strong>${file.name}</strong> | ${file.size/1024|0}KB | ${file.category}
+        `;
+    </script>
 </body>
 </html>
 
