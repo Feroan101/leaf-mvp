@@ -16,14 +16,24 @@ import tempfile
 import time
 from flask_cors import CORS  
 import shutil
+import requests
+
 
 app = Flask(__name__)
 CORS(app, origins="*")
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max
 app.config['UPLOAD_FOLDER'] = tempfile.mkdtemp()
 
+
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+# JDoodle API credentials
+JDOODLE_API = 'https://api.jdoodle.com/v1/execute'
+JDOODLE_CLIENT_ID = '21794914745250c7f02c919f02839a2c'
+JDOODLE_CLIENT_SECRET = 'f2e194493a892e8b8706025c20f93d853f1ab14918db7eb158aa600df097e014'
+
 
 class FileTypeIdentifier:
     """Comprehensive file type detection using magic bytes + extensions"""
@@ -143,6 +153,7 @@ class FileTypeIdentifier:
             bytes_size /= 1024.0
         return f"{bytes_size:.1f} TB"
 
+
 # Routes
 @app.route('/analyze', methods=['POST'])
 def analyze_files():
@@ -184,6 +195,7 @@ def analyze_files():
         }
     })
 
+
 @app.route('/identify', methods=['POST'])
 def quick_identify():
     """Quick identification from frontend-detected data (no file upload needed)"""
@@ -214,24 +226,58 @@ def quick_identify():
         }
     })
 
-@app.route('/upload', methods=['POST'])
-def upload():
+
+@app.route('/upload', methods=['POST', 'OPTIONS'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
     file = request.files['file']
-    timestamp = str(int(time.time() * 1000))
+    if file.filename == '':
+        return jsonify({'error': 'Empty filename'}), 400
+
+    import time, os
+    UPLOAD_DIR = 'uploads'
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    # original extension
     ext = os.path.splitext(file.filename)[1]
-    unique_filename = f"img_{timestamp}{ext}"
-    filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
-    file.save(filepath)
-    print(f"✅ UPLOADED: {unique_filename}")
-    return jsonify({'filename': unique_filename})
+    # normalized internal name
+    timestamp = int(time.time() * 1000)
+    new_filename = f'code_{timestamp}{ext}'
+
+    save_path = os.path.join(UPLOAD_DIR, new_filename)
+    file.save(save_path)
+
+    return jsonify({
+        'success': True,
+        'filename': new_filename,
+        'original': file.filename
+    }), 200
+
 
 @app.route('/latest-image')
 def latest_image():
-    images = [f for f in os.listdir(UPLOAD_FOLDER) if f.startswith('img_')]
+    images = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.startswith('img_')]
     if images:
-        latest = max(images, key=lambda f: os.path.getctime(os.path.join(UPLOAD_FOLDER, f)))
+        latest = max(images, key=lambda f: os.path.getctime(os.path.join(app.config['UPLOAD_FOLDER'], f)))
         return jsonify({'filename': latest})
     return jsonify({'filename': None})
+
+
+@app.route('/latest-code', methods=['GET', 'OPTIONS'])
+def get_latest_code():
+    UPLOAD_DIR = 'uploads'
+    if not os.path.exists(UPLOAD_DIR):
+        return jsonify({'filename': None}), 200
+
+    files = [f for f in os.listdir(UPLOAD_DIR) if f.startswith('code_')]
+    if not files:
+        return jsonify({'filename': None}), 200
+
+    latest = max(files, key=lambda f: os.path.getmtime(os.path.join(UPLOAD_DIR, f)))
+    return jsonify({'filename': latest}), 200
+
 
 @app.route('/file/<filename>')
 def get_file(filename):
@@ -241,21 +287,61 @@ def get_file(filename):
     
     if os.path.exists(filepath):
         print(f"✅ SERVING {filename}")
-        with open(filepath, 'rb') as f:
-            return f.read(), 200, {'Content-Type': 'image/jpeg'}
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return f.read(), 200, {'Content-Type': 'text/plain; charset=utf-8'}
     print(f"❌ 404 {filename}")
     return 'File not found', 404
+
+
+@app.route('/run', methods=['POST'])
+def run_code():
+    """Run code via JDoodle API (server-side proxy to avoid CORS)"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'script' not in data or 'language' not in data:
+            return jsonify({'error': 'Missing script or language'}), 400
+        
+        print(f"🔥 Backend received: {data}")
+        
+        # Build JDoodle payload
+        payload = {
+            'clientId': JDOODLE_CLIENT_ID,
+            'clientSecret': JDOODLE_CLIENT_SECRET,
+            'script': data['script'],
+            'language': data['language'],
+            'versionIndex': '0',
+            'stdin': data.get('stdin', '')
+        }
+        
+        print(f"📡 Calling JDoodle: {payload}")
+        
+        # Call JDoodle API (server-side, no CORS issues)
+        response = requests.post(JDOODLE_API, json=payload, timeout=30)
+        result = response.json()
+        
+        print(f"✅ JDoodle response: {result}")
+        
+        return jsonify(result), 200
+        
+    except requests.exceptions.Timeout:
+        return jsonify({'error': 'JDoodle API timeout'}), 504
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'JDoodle API error: {str(e)}'}), 502
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/health')
 def health():
     return jsonify({'status': 'running', 'ready': True})
 
+
 if __name__ == '__main__':
-    print("🚀 File Type Identifier Backend Starting...")
-    print(f"📁 Temp upload folder: {app.config['UPLOAD_FOLDER']}")
-    print("🌐 Endpoints:")
-    print("   POST /analyze  - Upload & analyze files")
-    print("   POST /identify - Validate frontend detection")
-    print("   GET  /health   - Server status")
-    print("\n📡 Ready to receive files from transparent overlay!")
+    print("🚀 Leaf Singularity IDE Backend")
+    print(f"📁 Upload folder: {os.path.abspath(UPLOAD_FOLDER)}")
+    print("🌐 Server: http://localhost:5000")
+    print("\n✅ CORS enabled")
+    print("📝 Open ide.html to start editing code\n")
     app.run(host='0.0.0.0', port=5000, debug=True)

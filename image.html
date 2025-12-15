@@ -477,6 +477,7 @@
                 </div>
 
                 <div class="separator"></div>
+                <button onclick="enableEditing()" style="margin-bottom: 20px;">Enable Editing</button> 
 
                 <div class="property-group">
                     <label class="property-label">Quick Actions</label>
@@ -532,8 +533,8 @@
     <input type="file" id="fileInput" accept="image/*" onchange="openImage(event)">
 
     <script>
-        // Auto-load latest uploaded image (like your fileInput button)
-window.addEventListener('DOMContentLoaded', async () => {
+       // Add background layer ONCE when image loads
+ window.addEventListener('DOMContentLoaded', async () => {
     const res = await fetch('http://localhost:5000/latest-image');
     const data = await res.json();
     const filename = data.filename;
@@ -543,20 +544,37 @@ window.addEventListener('DOMContentLoaded', async () => {
         fetch(`http://localhost:5000/file/${filename}`)
         .then(r => r.blob())
         .then(blob => {
-            const img = new Image();
-            img.onload = () => {
-                // YOUR ORIGINAL CANVAS LOGIC
-                const canvas = document.getElementById('mainCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                console.log('✅ Latest image loaded!');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // YOUR EXACT openImage canvas logic
+                    state.canvasSize = { width: img.width, height: img.height };
+                    
+                    // Use global mainCanvas (already defined in your code)
+                    mainCanvas.width = img.width;
+                    mainCanvas.height = img.height;
+                    
+                    const layerCanvas = state.layerCanvases[state.selectedLayerId];
+                    if (layerCanvas) {
+                        layerCanvas.width = img.width;
+                        layerCanvas.height = img.height;
+                        const ctx = layerCanvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        renderLayers();
+                    }
+                    
+                    mainCanvas.style.pointerEvents = 'none';
+                    console.log('✅ Image loaded to layer!');
+                };
+                img.src = e.target.result;
             };
-            img.src = URL.createObjectURL(blob);
+            reader.readAsDataURL(blob);
         });
     }
 });
+
+
 
 
         // Global State
@@ -657,7 +675,14 @@ window.addEventListener('DOMContentLoaded', async () => {
                 ctx.beginPath();
                 ctx.moveTo(pos.x, pos.y);
             }
+            // REMOVE THIS BROKEN LINE: const drawingCanvas = document.createElement('canvas');
         }
+
+
+        function enableEditing() {
+            document.getElementById('mainCanvas').style.pointerEvents = 'auto';
+        }
+
 
         function draw(e) {
             if (!state.isDrawing) return;
@@ -886,9 +911,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         function openImage(event) {
             const file = event.target.files[0];
-            if (!file) return;
-
             const reader = new FileReader();
+            if (!file) return;
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
@@ -904,6 +928,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                         ctx.drawImage(img, 0, 0);
                         renderLayers();
                     }
+                    canvas.style.pointerEvents = 'none';  // DISABLE mouse events
+                    console.log('✅ Image loaded - canvas protected!');
                 };
                 img.src = e.target.result;
             };
