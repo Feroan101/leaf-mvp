@@ -13,13 +13,17 @@ from typing import Dict, List, Optional
 from flask import Flask, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 import tempfile
+import time
 from flask_cors import CORS  
 import shutil
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins="*")
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max
 app.config['UPLOAD_FOLDER'] = tempfile.mkdtemp()
+
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 class FileTypeIdentifier:
     """Comprehensive file type detection using magic bytes + extensions"""
@@ -210,6 +214,37 @@ def quick_identify():
         }
     })
 
+@app.route('/upload', methods=['POST'])
+def upload():
+    file = request.files['file']
+    timestamp = str(int(time.time() * 1000))
+    ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"img_{timestamp}{ext}"
+    filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
+    file.save(filepath)
+    print(f"✅ UPLOADED: {unique_filename}")
+    return jsonify({'filename': unique_filename})
+
+@app.route('/latest-image')
+def latest_image():
+    images = [f for f in os.listdir(UPLOAD_FOLDER) if f.startswith('img_')]
+    if images:
+        latest = max(images, key=lambda f: os.path.getctime(os.path.join(UPLOAD_FOLDER, f)))
+        return jsonify({'filename': latest})
+    return jsonify({'filename': None})
+
+@app.route('/file/<filename>')
+def get_file(filename):
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    print(f"🔍 Looking for: {filepath}")
+    print(f"🔍 Exists: {os.path.exists(filepath)}")
+    
+    if os.path.exists(filepath):
+        print(f"✅ SERVING {filename}")
+        with open(filepath, 'rb') as f:
+            return f.read(), 200, {'Content-Type': 'image/jpeg'}
+    print(f"❌ 404 {filename}")
+    return 'File not found', 404
 
 @app.route('/health')
 def health():

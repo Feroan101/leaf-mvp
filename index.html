@@ -1150,9 +1150,15 @@ const overlayDropZone = document.getElementById('overlayDropZone');
     overlayDropZone.addEventListener(eventName, () => overlayDropZone.classList.remove('dragover'), false);
 });
 overlayDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    overlayDropZone.classList.remove('dragover');
     const files = e.dataTransfer.files;
     handleFiles(files);
+    
+    uploadToServer(files);  // ADD THIS LINE ONLY
 });
+
+
 overlayDropZone.addEventListener('click', () => document.getElementById('fileInput').click());
 
 function preventDefaults(e) {
@@ -1208,6 +1214,20 @@ function preventDefaults(e) {
     const logPanel = document.getElementById('logPanel');
     if (logPanel) logPanel.classList.add('open');
 }
+
+// ADD THIS - Uploads dropped files to uploads folder
+async function uploadToServer(files) {
+    for (let file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('http://localhost:5000/upload', {method: 'POST', body: formData});
+        const data = await res.json();
+        console.log('✅ Unique filename:', data.filename);
+        // Store unique filename for opening
+        localStorage.setItem('currentImageFile', data.filename);
+    }
+}
+
 
       async function handleFiles(files) {
     Array.from(files).forEach(async (file) => {
